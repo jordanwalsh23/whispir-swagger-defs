@@ -1,0 +1,246 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Voice APIs",
+        "description": "Create Voice messages using Whispir's Powerful Conversation APIs.",
+        "version": "1.0.0",
+        "x-gist-id": "e76e461415f5df25aae3",
+        "x-gist-filename": "voice-message-swagger.yaml",
+        "x-gist-description": "Whispir Voice API (Swagger v1)"
+    },
+    "host": "api.whispir.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io."
+        }
+    },
+    "basePath": "/cors",
+    "produces": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "paths": {
+        "/messages": {
+            "post": {
+                "summary": "Send a Voice message from the default workspace",
+                "description": "Allows the user to send a simple Voice call or bridge to teleconference services\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the Voice message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/Voice Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again."
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.",
+                    "url": "https://whispir.github.io/api/#voice-messages"
+                }
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "summary": "Retrieve the workspace information to allow users to send messages from workspaces.\n",
+                "produces": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The workspaces have been returned successfully\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspaceId}/messages": {
+            "post": {
+                "summary": "Send a Voice message from a specified workspace",
+                "description": "Allows the user to send a simple Voice call or bridge to teleconference services\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The content of the Voice message to be sent.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the Voice message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/Voice Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again."
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.",
+                    "url": "https://whispir.github.io/api/#voice-messages"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Voice Message": {
+            "type": "object",
+            "properties": {
+                "to": {
+                    "title": "Message Recipients",
+                    "description": "The recipients of the message. Can be mobile number, email or landline.",
+                    "type": "string"
+                },
+                "subject": {
+                    "title": "Message Subject",
+                    "description": "The subject of the message.",
+                    "type": "string"
+                },
+                "voice": {
+                    "$ref": "#/definitions/Voice"
+                }
+            }
+        },
+        "Voice": {
+            "type": "object",
+            "properties": {
+                "header": {
+                    "title": "Introduction Content",
+                    "description": "The introduction message for the voice call. Played when the recipient picks up the call.",
+                    "type": "string"
+                },
+                "body": {
+                    "title": "Voice Content",
+                    "description": "The body of the voice call. Played after the subject of the message.",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "title": "Conference Bridge Settings",
+                    "description": "This string specifies whether automated conference calling should be used.",
+                    "default": "ConfCall:,ConfAccountNo:,ConfPinNo:,ConfModPinNo:,Pin:"
+                },
+                "resources": {
+                    "title": "Voice Attachments",
+                    "$ref": "#/definitions/Resource"
+                }
+            }
+        },
+        "Resource": {
+            "type": "object",
+            "title": "Attachments",
+            "properties": {
+                "attachment": {
+                    "type": "array",
+                    "title": "Custom WAV Files",
+                    "items": {
+                        "$ref": "#/definitions/Attachment"
+                    }
+                }
+            }
+        },
+        "Attachment": {
+            "type": "object",
+            "title": "Custom WAV File",
+            "properties": {
+                "attachmentName": {
+                    "type": "string",
+                    "title": "Attachment Filename",
+                    "description": "The name of the attachment file."
+                },
+                "attachmentDesc": {
+                    "type": "string",
+                    "title": "WAV Playback Location",
+                    "description": "The part of the voice call that the WAV should be played.",
+                    "enum": [
+                        "voiceintro.wav",
+                        "voicebody.wav"
+                    ]
+                },
+                "derefUri": {
+                    "type": "string",
+                    "format": "byte",
+                    "title": "Attachment Base64 Encoding",
+                    "description": "The base64 encoded version of the attachment file. All WAV files must be 8bit, 8000Hz, 1ch, 64kbps MAX.\n"
+                }
+            }
+        }
+    }
+}

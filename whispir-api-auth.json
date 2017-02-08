@@ -1,0 +1,92 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir API Auth",
+        "description": "Method of authenticating to the Whispir API that uses JWT",
+        "version": "1.0.0",
+        "x-gist-id": "3746a40e3fd4b1331086c74ff29e7c25",
+        "x-gist-filename": "whispir-api-auth-swagger.json",
+        "x-gist-description": "Whispir API Auth (Swagger v1)"
+    },
+    "host": "whispir-api-auth-mock.herokuapp.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        },
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "basePath": "/",
+    "paths": {
+        "/auth": {
+            "post": {
+                "summary": "Create a new JWT",
+                "x-swagger-router-controller": "Auth",
+                "operationId": "authPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "consumes": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The JWT is returned",
+                        "schema": {
+                            "$ref": "#/definitions/authResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            },
+                            "application/xml": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "authResponse": {
+            "type": "object",
+            "xml": {
+                "name": "auth",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns3"
+            },
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

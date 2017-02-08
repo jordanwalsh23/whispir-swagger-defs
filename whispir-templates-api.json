@@ -1,0 +1,553 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Templates APIs",
+        "description": "Create and manage your communications templates using Whispir's Templating engine",
+        "version": "1.0.0",
+        "x-gist-id": "cd0e954b8e5a3afc096c",
+        "x-gist-filename": "templates-swagger.json",
+        "x-gist-description": "Whispir Templates API (Swagger v1)"
+    },
+    "host": "api.whispir.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "API Key",
+            "description": "The API Key provided after creating an application in Whispir.io."
+        }
+    },
+    "basePath": "/cors",
+    "produces": [
+        "application/vnd.whispir.template-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.template-v1+json"
+    ],
+    "paths": {
+        "/templates": {
+            "get": {
+                "summary": "Get Default Workspace Templates",
+                "description": "Provides a list of the templates from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "default": "20",
+                        "description": "The number of templates to return. Default 20.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The search result to start retuning results from. Default 0.",
+                        "required": false,
+                        "type": "string",
+                        "default": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of template objects\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            },
+            "post": {
+                "summary": "Create a new template in the default workspace",
+                "description": "Creates a new template in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Template",
+                        "in": "body",
+                        "required": true,
+                        "description": "The template information that should be created.",
+                        "schema": {
+                            "title": "Template",
+                            "$ref": "#/definitions/template"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The template object has been created\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            }
+        },
+        "/templates/{templateId}": {
+            "get": {
+                "summary": "Get a specific template from the default workspace.",
+                "description": "Get a specific template from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be returned",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified template object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            },
+            "put": {
+                "summary": "Update a specific template record in the default workspace.",
+                "description": "Update a specific template in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be updated",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Contact",
+                        "in": "body",
+                        "description": "The Template Object to be updated",
+                        "required": true,
+                        "schema": {
+                            "title": "Template",
+                            "$ref": "#/definitions/template"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified template object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            },
+            "delete": {
+                "summary": "Delete a specific template record in the default workspace.",
+                "description": "Delete a specific template in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be updated",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The specified template object is deleted.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "summary": "Retrieve the workspace information to allow users to send messages from workspaces.\n",
+                "produces": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The workspaces have been returned successfully\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            }
+        },
+        "/workspaces/{workspaceId}/templates": {
+            "get": {
+                "summary": "Get templates from a specific workspace",
+                "description": "Provides a list of the templates from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Workspace ID that should be used to search for templates",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "default": "20",
+                        "description": "The number of messages to return. Default 20.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The search result to start retuning results from. Default 0.",
+                        "required": false,
+                        "type": "string",
+                        "default": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of template objects\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new template in the specified workspace",
+                "description": "Creates a new template in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Workspace ID that should be used to create the template",
+                        "type": "string"
+                    },
+                    {
+                        "name": "Contact",
+                        "in": "body",
+                        "required": true,
+                        "description": "The contact information that should be created.",
+                        "schema": {
+                            "title": "Template",
+                            "$ref": "#/definitions/template"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The template has been created\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            }
+        },
+        "/workspaces/{workspaceId}/templates/{templateId}": {
+            "get": {
+                "summary": "Get a specific contact from the default workspace.",
+                "description": "Get a specific contact from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be returned",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified template object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            },
+            "put": {
+                "summary": "Update a specific template record in the specified workspace.",
+                "description": "Update a specific template in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be updated",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Template",
+                        "in": "body",
+                        "description": "The Template Object to be updated",
+                        "required": true,
+                        "schema": {
+                            "title": "Template",
+                            "$ref": "#/definitions/template"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified template object is updated.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            },
+            "delete": {
+                "summary": "Delete a specific template record in the specified workspace.",
+                "description": "Delete a specific template in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "templateId",
+                        "in": "path",
+                        "description": "The ID of the template to be updated",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The specified template object is deleted.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "template"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "template": {
+            "title": "Template Information",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Contact Type",
+                    "description": "The contact type (Company or Project)",
+                    "type": "string",
+                    "default": "COMPANY",
+                    "enum": [
+                        "COMPANY"
+                    ]
+                }
+            }
+        }
+    }
+}

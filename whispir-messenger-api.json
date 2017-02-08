@@ -1,0 +1,2980 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Applications APIs",
+        "description": "The following APIs allow developers to build applications that utilise Whispir's cross channel \nmessaging capability to deliver push notifications.\n\nThe APIs documented here facilitate:\n- App Registration\n- User/Device Registration \n- Retrieval of Messages\n- Sending Push Notifications with Rich Messaging\n- Retrieval and Update of Profile information\n\nThese API calls will be implemented on the existing API that is registered at api.whispir.com, however as the main user population will be client side, a new authentication scheme will be introduced to handle client side auth.\n\nThis document is intended to be modified by many participants.  To ensure that changes are versioned, every modification will be automatically recorded in gist.github.com.\n",
+        "version": "1.0.0",
+        "x-gist-id": "1b602cd0bca5cf9daad1",
+        "x-gist-filename": "messenger-api-swagger.json",
+        "x-gist-description": "Whispir Messenger API (Swagger v1)"
+    },
+    "host": "whispir-messenger-api-mock.herokuapp.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apiKey",
+            "description": "The Mashery apiKey required to use the API\n"
+        },
+        "JWT": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT Bearer Token to identify the current user/app/device.\n"
+        }
+    },
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Default endpoint",
+                "x-swagger-router-controller": "Default",
+                "operationId": "rootGet",
+                "responses": {
+                    "200": {
+                        "description": "The default endpoint",
+                        "schema": {
+                            "$ref": "#/definitions/default"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "status": "Whispir API is Available",
+                                "links": [
+                                    {
+                                        "rel": "auth",
+                                        "url": "/app/auth",
+                                        "method": "POST",
+                                        "type": "application/json"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/app/auth": {
+            "post": {
+                "summary": "Temporarily authenticate the current user",
+                "x-swagger-router-controller": "Auth",
+                "operationId": "appAuthPost",
+                "security": [
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "AuthObject",
+                        "in": "body",
+                        "description": "The temporary authorisation information.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The user is authenticated to access limited functionality.",
+                        "schema": {
+                            "$ref": "#/definitions/authResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+                                "jwt": {
+                                    "appId": "F1DB7EA2BE0245E4",
+                                    "userId": "A8ED9D2CFECD500F",
+                                    "type": "TEMP",
+                                    "iat": 33011386319,
+                                    "exp": 33011386319,
+                                    "apikey": "dfsbdsfdsf08f8bdsf0asdf0bdsb"
+                                },
+                                "links": [
+                                    {
+                                        "rel": "device",
+                                        "url": "/app/devices",
+                                        "method": "POST"
+                                    },
+                                    {
+                                        "rel": "device",
+                                        "url": "/app/devices",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/app/renew": {
+            "put": {
+                "summary": "Renew authentication the current user",
+                "x-swagger-router-controller": "Auth",
+                "operationId": "appRenewPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "body",
+                        "description": "The JWT to be renewed",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/renewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The jwt token is renewed.",
+                        "schema": {
+                            "$ref": "#/definitions/authResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+                                "jwt": {
+                                    "appId": "F1DB7EA2BE0245E4",
+                                    "userId": "A8ED9D2CFECD500F",
+                                    "deviceId": "DCD5BE2AEBEE0A40",
+                                    "type": "APP",
+                                    "iat": 33011386319,
+                                    "exp": 33011386319,
+                                    "apikey": "dfsbdsfdsf08f8bdsf0asdf0bdsb"
+                                },
+                                "links": [
+                                    {
+                                        "rel": "app",
+                                        "url": "/app",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/app/register": {
+            "post": {
+                "summary": "Request a registration via SMS",
+                "x-swagger-router-controller": "Auth",
+                "operationId": "appRegisterPost",
+                "security": [
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "register",
+                        "in": "body",
+                        "description": "The body of the registration",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/registerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The registration is processed.",
+                        "schema": {
+                            "$ref": "#/definitions/registerResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "status": "OK",
+                                "summary": "The message has been sent successfully"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/app": {
+            "get": {
+                "summary": "Retrieve the current application associated with the JWT",
+                "x-swagger-router-controller": "App",
+                "operationId": "appGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The current application information",
+                        "schema": {
+                            "$ref": "#/definitions/application"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "CB3DACEBDF53DBC37D",
+                                "name": "Whispir Messenger",
+                                "deviceLimit": "3",
+                                "links": [
+                                    {
+                                        "rel": "auth",
+                                        "url": "/app/auth",
+                                        "method": "POST",
+                                        "type": "application/json"
+                                    },
+                                    {
+                                        "rel": "user",
+                                        "url": "/app/me",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "users",
+                                        "url": "/app/users",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "app"
+                ]
+            }
+        },
+        "/app/chats": {
+            "post": {
+                "summary": "Create a new chat room",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appChatsPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "chat",
+                        "in": "body",
+                        "description": "The chat object",
+                        "schema": {
+                            "$ref": "#/definitions/chatRequest"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The chat is created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/chatResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "B3948CBDA84DCFACEF",
+                                "name": "My Awesome Chat",
+                                "numusers": 0,
+                                "associatedEntities": [
+                                    {
+                                        "entityType": "MESSAGE",
+                                        "entityId": "B394DFE930DABC39"
+                                    }
+                                ],
+                                "read": true,
+                                "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                "links": [
+                                    {
+                                        "rel": "chat",
+                                        "url": "/app/chats/B3948CBDA84DCFACEF",
+                                        "method": "PUT"
+                                    },
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/chats/B3948CBDA84DCFACEF",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "chatmessages",
+                                        "url": "/app/chats/B3948CBDA84DCFACEF/chatmessages",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "users",
+                                        "url": "/app/chats/B3948CBDA84DCFACEF/users",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            },
+            "get": {
+                "summary": "Retrieve all of the chats that I am part of",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appMeChatsGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "The name of the chat to retrieve",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of chat objects that the current user is part of",
+                        "schema": {
+                            "$ref": "#/definitions/chatArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "chats": [
+                                    {
+                                        "id": "C39DBACB38FEDB301D",
+                                        "name": "My Awesome Chat",
+                                        "lastModifiedDate": "2016-01-25T10:00:00.816226465Z",
+                                        "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                        "read": true,
+                                        "numusers": 10,
+                                        "associatedEntities": [
+                                            {
+                                                "entityType": "MESSAGE",
+                                                "entityId": "B394DFE930DABC39"
+                                            }
+                                        ],
+                                        "latestChatMessage": {
+                                            "id": "BE38FAAC38901BC3",
+                                            "user": {
+                                                "id": "BC3749DABC391DEF93",
+                                                "name": "John Smith",
+                                                "avatar": "https://some.url/myavatar.png"
+                                            },
+                                            "message": "This is the chat with images",
+                                            "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                            "links": [
+                                                {
+                                                    "rel": "self",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D/chatmessages/BE38FAAC38901BC38A",
+                                                    "method": "GET"
+                                                }
+                                            ]
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/chats/C39DBACB38FEDB301D",
+                                                "method": "GET"
+                                            },
+                                            {
+                                                "rel": "chats",
+                                                "url": "/app/chats/C39DBACB38FEDB301D",
+                                                "method": "PUT"
+                                            },
+                                            {
+                                                "rel": "chatmessages",
+                                                "url": "/app/chats/C39DBACB38FEDB301D/chatmessages",
+                                                "method": "GET"
+                                            },
+                                            {
+                                                "rel": "users",
+                                                "url": "/app/chats/C39DBACB38FEDB301D/users",
+                                                "method": "GET"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            }
+        },
+        "/app/chats/unread": {
+            "get": {
+                "summary": "Retrieve a count of the unread chats",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appMeChatsUnreadGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The unread chat count and a list of chat objects that have unread messages",
+                        "schema": {
+                            "$ref": "#/definitions/unread"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "unreadChatsCount": 12,
+                                "chats": [
+                                    {
+                                        "id": "BA384FDBEACFE383",
+                                        "name": "My Awesome Chat",
+                                        "unreadCount": 4
+                                    },
+                                    {
+                                        "id": "D84BD93BDEF83912",
+                                        "name": "My 2nd Awesome Chat",
+                                        "unreadCount": 4
+                                    },
+                                    {
+                                        "id": "3BD029DFBE839FDA",
+                                        "name": "My 3rd Awesome Chat",
+                                        "unreadCount": 4
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            }
+        },
+        "/app/chats/{id}": {
+            "get": {
+                "summary": "Retrieve the information about a chat",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appChatsIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the chat to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The details about the chat.",
+                        "schema": {
+                            "$ref": "#/definitions/chatResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "C39DBACB38FEDB301D",
+                                "name": "My Awesome Chat",
+                                "lastModifiedDate": "2016-01-25T10:00:00.816226465Z",
+                                "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                "read": true,
+                                "numusers": 10,
+                                "associatedEntities": [
+                                    {
+                                        "entityType": "MESSAGE",
+                                        "entityId": "B394DFE930DABC39"
+                                    }
+                                ],
+                                "latestChatMessage": {
+                                    "id": "BE38FAAC38901BC38A",
+                                    "user": {
+                                        "id": "BC3749DABC391DEF93",
+                                        "name": "John Smith",
+                                        "avatar": "https://some.url/myavatar.png"
+                                    },
+                                    "message": "This is the chat",
+                                    "imageThumbnail": "https://s3-us-west-2.amazonaws.com/apps-api-test/thumbs/image-9b838395-c3e9-4477-a800-dd17434335c7.jpg",
+                                    "imageFullsize": "https://s3-us-west-2.amazonaws.com/apps-api-test/images/image-9b838395-c3e9-4477-a800-dd17434335c7.jpg",
+                                    "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "url": "/app/chats/C39DBACB38FEDB301D/chatmessages/BE38FAAC38901BC38A",
+                                            "method": "GET"
+                                        }
+                                    ]
+                                },
+                                "links": [
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/chats/C39DBACB38FEDB301D",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "updateChat",
+                                        "url": "/app/chats/C39DBACB38FEDB301D",
+                                        "method": "PUT"
+                                    },
+                                    {
+                                        "rel": "chats",
+                                        "url": "/app/chats/C39DBACB38FEDB301D/chatmessages",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "users",
+                                        "url": "/app/chats/C39DBACB38FEDB301D/users",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            },
+            "put": {
+                "summary": "Update the chat information or participants",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appChatsIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the chat to retrieve",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "chat",
+                        "description": "The chat information to be updated",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/chatUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The chat has been updated"
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            }
+        },
+        "/app/chats/{id}/chatmessages": {
+            "get": {
+                "summary": "Retrieve all of the chat messages for a chat room",
+                "x-swagger-router-controller": "Chatmessage",
+                "operationId": "appChatsIdChatmessagesGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the chat to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of chat message objects for the current room in reverse order.",
+                        "schema": {
+                            "$ref": "#/definitions/chatMessageArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "chatmessages": [
+                                    {
+                                        "id": "CCDB38DBACEFA38DC3",
+                                        "user": {
+                                            "id": "BC3749DABC391DEF93",
+                                            "name": "John Smith",
+                                            "avatar": "https://some.url/myavatar.png"
+                                        },
+                                        "message": "This is the chat",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z"
+                                    },
+                                    {
+                                        "id": "CCDB38DBACEFA38D4C",
+                                        "user": {
+                                            "id": "BC3749DABC391DEF93",
+                                            "name": "John Smith",
+                                            "avatar": "https://some.url/myavatar.png"
+                                        },
+                                        "message": "This is the chat with an image",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                        "imageThumbnail": "https://s3-us-west-2.amazonaws.com/apps-api-test/thumbs/image-9b838395-c3e9-4477-a800-dd17434335c7.jpg",
+                                        "imageFullsize": "https://s3-us-west-2.amazonaws.com/apps-api-test/images/image-9b838395-c3e9-4477-a800-dd17434335c7.jpg"
+                                    },
+                                    {
+                                        "id": "CCDB38DBACEFA38DEF",
+                                        "user": {
+                                            "id": "BC3749DABC391DEF93",
+                                            "name": "John Smith",
+                                            "avatar": "https://some.url/myavatar.png"
+                                        },
+                                        "message": "This is the other chat",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chatmessage"
+                ]
+            },
+            "post": {
+                "summary": "Create a new Chat Message in a Chat Room",
+                "x-swagger-router-controller": "Chatmessage",
+                "operationId": "appChatsIdChatmessagesPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the chat to post the chat in",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "chat",
+                        "in": "body",
+                        "description": "The Chat content to be posted",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/chatMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The new chat has been created.",
+                        "schema": {
+                            "$ref": "#/definitions/chatMessageResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "CCDB38DBACEFA38DEF",
+                                "user": {
+                                    "id": "BC3749DABC391DEF93",
+                                    "name": "John Smith",
+                                    "avatar": "https://some.url/myavatar.png"
+                                },
+                                "message": "This is the chat",
+                                "sentDate": "2016-01-25T10:00:00.816226465Z"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chatmessage"
+                ]
+            }
+        },
+        "/app/chats/{chatId}/chatmessages/{chatmessageId}": {
+            "put": {
+                "summary": "Update the status of a chatmessage",
+                "x-swagger-router-controller": "Chatmessage",
+                "operationId": "appMeChatsChatIdChatmessagesChatmessageIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "chatId",
+                        "in": "path",
+                        "description": "The chat ID to retrieve",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "chatmessageId",
+                        "in": "path",
+                        "description": "The chatmessage ID to retrieve",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "chatmessagestatus",
+                        "in": "body",
+                        "description": "The status of the chat message",
+                        "schema": {
+                            "$ref": "#/definitions/messageStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The chat message status has been updated"
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chatmessage"
+                ]
+            }
+        },
+        "/app/chats/{id}/users": {
+            "get": {
+                "summary": "Retrieve all of the users in a chat room",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appChatsIdUsersGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the chat to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of user objects for the current room.",
+                        "schema": {
+                            "$ref": "#/definitions/userArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "users": [
+                                    {
+                                        "id": "BC3749DABC391DEF93",
+                                        "name": "John Smith",
+                                        "avatar": "https://some.url/myavatar.png",
+                                        "links": [
+                                            {
+                                                "rel": "delete",
+                                                "url": "/app/chats/B309FCDABEFD4839/users/BC3749DABC391DEF93",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "DB37AEDF83BDEFAB39",
+                                        "name": "Jane Smith",
+                                        "links": [
+                                            {
+                                                "rel": "delete",
+                                                "url": "/app/chats/B309FCDABEFD4839/users/DB37AEDF83BDEFAB39",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            }
+        },
+        "/app/chats/{chatId}/users/{userId}": {
+            "delete": {
+                "summary": "Delete a user from the current chat",
+                "x-swagger-router-controller": "Chat",
+                "operationId": "appChatsChatIdUsersUserIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "chatId",
+                        "in": "path",
+                        "description": "The ID of the chat to retrieve",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "The ID of the user to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The requested user object is removed"
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "chat"
+                ]
+            }
+        },
+        "/app/users": {
+            "get": {
+                "summary": "Retrieve a list of users registered for this application",
+                "x-swagger-router-controller": "App",
+                "operationId": "appUsersGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "The search query for users.",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "The number of results to return per page, default 20.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false,
+                        "default": 20
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The number of results to offset from 0. Used for pagination.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The list of users",
+                        "schema": {
+                            "$ref": "#/definitions/userArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "users": [
+                                    {
+                                        "id": "BC3749DABC391DEF93",
+                                        "name": "John Smith",
+                                        "description": "Product Manager",
+                                        "avatar": "https://my.avatar.url/myavatar.png"
+                                    },
+                                    {
+                                        "id": "DB37AEDF83BDEFAB39",
+                                        "name": "Jane Smith",
+                                        "description": "Senior Manager of All that is Awesome"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "app"
+                ]
+            }
+        },
+        "/app/me": {
+            "get": {
+                "summary": "Retrieve the current user information associated with the JWT",
+                "x-swagger-router-controller": "Me",
+                "operationId": "appMeGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The current application user information",
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "CB3DACEBDF53DBC37D",
+                                "name": "John Smith",
+                                "avatar": "https://some.url.to.avatar/avatar.png",
+                                "links": [
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/me",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "messages",
+                                        "url": "/app/messages",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices",
+                                        "method": "POST"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "me"
+                ]
+            },
+            "put": {
+                "summary": "Allow the user to update their details",
+                "x-swagger-router-controller": "Me",
+                "operationId": "appMePut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "The updated details for the current user",
+                        "schema": {
+                            "$ref": "#/definitions/userUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The updated application user information",
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "CB3DACEBDF53DBC37D",
+                                "name": "John Smith",
+                                "avatar": "https://some.url.to.avatar/avatar.png",
+                                "links": [
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/me",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "messages",
+                                        "url": "/app/messages",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices",
+                                        "method": "GET"
+                                    },
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices",
+                                        "method": "POST"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "me"
+                ]
+            }
+        },
+        "/app/devices": {
+            "post": {
+                "summary": "devices",
+                "x-swagger-router-controller": "Device",
+                "operationId": "appMeDevicesPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Device",
+                        "in": "body",
+                        "description": "The device information to be registered",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/deviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The device is registered successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/deviceAuth"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "device": {
+                                    "id": "BC3749DABC391DEF93",
+                                    "deviceName": "Jordan's Nexus",
+                                    "platform": "ANDROID",
+                                    "pushProvider": "GCM",
+                                    "deviceOS": "5.0.1",
+                                    "deviceModel": "Nexus 6",
+                                    "appVersion": "1.0.1",
+                                    "createdDate": "2016-01-25T10:00:00,816226465Z",
+                                    "lastModifiedDate": "2016-01-25T10:00:00,816226465Z",
+                                    "pushToken": "APA91bG_NZcT4KbUV8Kxuz2B-PoL47nFL52Tfe1U8NKxyCUW7k6BrrtTK7IETvQiLGUxtcUAswTTK4MbSZV1vT5fjjocYTGekNlKN4LWocLX5oPwOKE7bDtoeRasdDP3pm8B-kHzeYmB"
+                                },
+                                "auth": {
+                                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+                                    "jwt": {
+                                        "appId": "F1DB7EA2BE0245E4",
+                                        "userId": "A8ED9D2CFECD500F",
+                                        "deviceId": "DCD5BE2AEBEE0A40",
+                                        "type": "APP",
+                                        "iat": 33011386319,
+                                        "exp": 33011386319,
+                                        "apikey": "dfsbdsfdsf08f8bdsf0asdf0bdsb"
+                                    },
+                                    "links": [
+                                        {
+                                            "rel": "Get information about the current application",
+                                            "url": "/app",
+                                            "method": "GET"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "device"
+                ]
+            },
+            "get": {
+                "summary": "Retrieve a list of devices registered for the current user",
+                "x-swagger-router-controller": "Device",
+                "operationId": "appMeDevicesGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "The number of results to return per page, default 20.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The number of results to offset from 0. Used for pagination.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The list of devices",
+                        "schema": {
+                            "$ref": "#/definitions/deviceArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "devices": [
+                                    {
+                                        "id": "BC3749DABC391DEF93",
+                                        "deviceName": "Jordan's Nexus",
+                                        "platform": "ANDROID",
+                                        "pushProvider": "GCM",
+                                        "deviceOS": "5.0.1",
+                                        "deviceModel": "Nexus 6",
+                                        "appVersion": "1.0.1",
+                                        "createdDate": "2016-01-25T10:00:00,816226465Z",
+                                        "lastModifiedDate": "2016-01-25T10:00:00,816226465Z",
+                                        "pushToken": "APA91bG_NZcT4KbUV8Kxuz2B-PoL47nFL52Tfe1U8NKxyCUW7k6BrrtTK7IETvQiLGUxtcUAswTTK4MbSZV1vT5fjjocYTGekNlKN4LWocLX5oPwOKE7bDtoeRasdDP3pm8B-kHzeYmB",
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/devices/BC3749DABC391DEF93",
+                                                "method": "GET"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "device"
+                ]
+            }
+        },
+        "/app/devices/{id}": {
+            "get": {
+                "summary": "Get device information",
+                "x-swagger-router-controller": "Device",
+                "operationId": "appMeDevicesIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the device to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested device is returned.",
+                        "schema": {
+                            "$ref": "#/definitions/deviceResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "BC3749DABC391DEF93",
+                                "deviceName": "Jordan's Nexus",
+                                "platform": "ANDROID",
+                                "pushProvider": "GCM",
+                                "deviceOS": "5.0.1",
+                                "deviceModel": "Nexus 6",
+                                "appVersion": "1.0.1",
+                                "createdDate": "2016-01-25T10:00:00,816226465Z",
+                                "lastModifiedDate": "2016-01-25T10:00:00,816226465Z",
+                                "pushToken": "APA91bG_NZcT4KbUV8Kxuz2B-PoL47nFL52Tfe1U8NKxyCUW7k6BrrtTK7IETvQiLGUxtcUAswTTK4MbSZV1vT5fjjocYTGekNlKN4LWocLX5oPwOKE7bDtoeRasdDP3pm8B-kHzeYmB",
+                                "links": [
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices/BC3749DABC391DEF93",
+                                        "method": "PUT"
+                                    },
+                                    {
+                                        "rel": "devices",
+                                        "url": "/app/devices/BC3749DABC391DEF93",
+                                        "method": "DELETE"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "device"
+                ]
+            },
+            "put": {
+                "summary": "Update an existing Device on the App",
+                "x-swagger-router-controller": "Device",
+                "operationId": "appMeDevicesIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the device to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Device",
+                        "in": "body",
+                        "description": "The device information to be updated",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/deviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The device is updated successfully."
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "device"
+                ]
+            },
+            "delete": {
+                "summary": "Delete an existing Device on the App",
+                "x-swagger-router-controller": "Device",
+                "operationId": "appMeDevicesIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the device to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The device is updated successfully."
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "device"
+                ]
+            }
+        },
+        "/app/workspaces": {
+            "get": {
+                "summary": "Retrieve a list of workspaces for the current app user",
+                "x-swagger-router-controller": "Workspace",
+                "operationId": "appMeWorkspacesGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of workspaces",
+                        "schema": {
+                            "$ref": "#/definitions/workspacesArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "workspaces": [
+                                    {
+                                        "id": "B382DEFED389A01DEF",
+                                        "name": "My First Workspace",
+                                        "unreadCount": 12
+                                    },
+                                    {
+                                        "id": "B382DEFED389A01ABC",
+                                        "name": "My Second Workspace",
+                                        "unreadCount": 0
+                                    },
+                                    {
+                                        "id": "CB3748DBC93BCD91A",
+                                        "name": "My Third Workspace",
+                                        "unreadCount": 0
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "workspace"
+                ]
+            }
+        },
+        "/app/messages": {
+            "get": {
+                "summary": "Retrieve a list of messages sent to the current app user",
+                "x-swagger-router-controller": "Message",
+                "operationId": "appMeMessagesGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "since",
+                        "in": "query",
+                        "description": "Unix Timestamp (e.g. \"2016-01-25T10:00:00.816226465Z\") to query devices from.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    },
+                    {
+                        "name": "before",
+                        "in": "query",
+                        "description": "Unix Timestamp (e.g. \"2016-01-25T10:00:00.816226465Z\") to query devices until.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "The number of results to return per page, default 20.",
+                        "type": "integer",
+                        "format": "int32",
+                        "required": false
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Text string to search messages for.",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "workspaceId",
+                        "in": "query",
+                        "description": "The ID of the workspace to filter messages by.",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of messages",
+                        "schema": {
+                            "$ref": "#/definitions/messageArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "messages": [
+                                    {
+                                        "id": "C38CB39ADEF48ADC",
+                                        "subject": "Message 1",
+                                        "body": "This is the body content of Message 1",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                        "webUrl": "https://whispir.au.whispir.com/s/ffecb38",
+                                        "workspaceId": "E38CBADC59FDBE3C",
+                                        "categories": [
+                                            "Incident",
+                                            "AllStaff"
+                                        ],
+                                        "read": false,
+                                        "chat": {
+                                            "id": "C39DBACB38FEDB301D",
+                                            "name": "My Awesome Chat",
+                                            "lastModifiedDate": "2016-01-25T10:00:00.816226465Z",
+                                            "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                            "latestChatMessage": {
+                                                "id": "BE38FAAC38901BC38A",
+                                                "user": {
+                                                    "id": "BC3749DABC391DEF93",
+                                                    "name": "John Smith",
+                                                    "avatar": "https://some.url/myavatar.png"
+                                                },
+                                                "message": "This is the chat",
+                                                "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                                "links": [
+                                                    {
+                                                        "rel": "self",
+                                                        "url": "/app/chats/C39DBACB38FEDB301D/chatmessages/BE38FAAC38901BC38A",
+                                                        "method": "GET"
+                                                    }
+                                                ]
+                                            },
+                                            "links": [
+                                                {
+                                                    "rel": "self",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D",
+                                                    "method": "GET"
+                                                },
+                                                {
+                                                    "rel": "chats",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D/chatmessages",
+                                                    "method": "GET"
+                                                },
+                                                {
+                                                    "rel": "users",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D/users",
+                                                    "method": "GET"
+                                                }
+                                            ]
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/messages/C38CB39ADEF48ADC",
+                                                "method": "PUT",
+                                                "type": "application/json"
+                                            },
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/messages?id[]=C38CB39ADEF48ADC",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "C38CB39ADEF48ADF",
+                                        "subject": "Message 2",
+                                        "body": "This is the body content of Message 2",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                        "webUrl": "https://whispir.au.whispir.com/s/bc83bcd",
+                                        "workspaceId": "E38CBADC59FDBE3C",
+                                        "categories": [
+                                            "Incident"
+                                        ],
+                                        "read": true,
+                                        "chat": {
+                                            "id": "C39DBACB38FEDB301D",
+                                            "name": "My Awesome Chat",
+                                            "lastModifiedDate": "2016-01-25T10:00:00.816226465Z",
+                                            "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                            "latestChatMessage": {
+                                                "id": "BE38FAAC38901BC38A",
+                                                "user": {
+                                                    "id": "BC3749DABC391DEF93",
+                                                    "name": "John Smith",
+                                                    "avatar": "https://some.url/myavatar.png"
+                                                },
+                                                "message": "This is the chat",
+                                                "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                                "links": [
+                                                    {
+                                                        "rel": "self",
+                                                        "url": "/app/chats/C39DBACB38FEDB301D/chatmessages/BE38FAAC38901BC38A",
+                                                        "method": "GET"
+                                                    }
+                                                ]
+                                            },
+                                            "links": [
+                                                {
+                                                    "rel": "self",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D",
+                                                    "method": "GET"
+                                                },
+                                                {
+                                                    "rel": "chats",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D/chatmessages",
+                                                    "method": "GET"
+                                                },
+                                                {
+                                                    "rel": "users",
+                                                    "url": "/app/chats/C39DBACB38FEDB301D/users",
+                                                    "method": "GET"
+                                                }
+                                            ]
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/messages/C38CB39ADEF48ADF",
+                                                "method": "PUT",
+                                                "type": "application/json"
+                                            },
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/messages?id[]=C38CB39ADEF48ADC",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "message"
+                ]
+            },
+            "delete": {
+                "summary": "Delete a message from the current user",
+                "x-swagger-router-controller": "Message",
+                "operationId": "appMeMessagesIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "The ID of the message to delete",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The requested message is updated"
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "message"
+                ]
+            }
+        },
+        "/app/messages/{id}": {
+            "get": {
+                "summary": "Get a single message for the current user",
+                "x-swagger-router-controller": "Message",
+                "operationId": "appMeMessagesIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the message to retrieve",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested message is retrieved",
+                        "schema": {
+                            "$ref": "#/definitions/singleMessageResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "C38CB39ADEF48ADC",
+                                "subject": "Message 1",
+                                "body": "This is the body content of Message 1",
+                                "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                "webUrl": "https://whispir.au.whispir.com/s/ffecb38",
+                                "workspaceId": "E38CBADC59FDBE3C",
+                                "categories": [
+                                    "Incident",
+                                    "AllStaff"
+                                ],
+                                "read": false,
+                                "recipientsExceededForChat": false,
+                                "chatDisabledByUser": false,
+                                "chat": {
+                                    "id": "C39DBACB38FEDB301D",
+                                    "name": "My Awesome Chat",
+                                    "lastModifiedDate": "2016-01-25T10:00:00.816226465Z",
+                                    "createdDate": "2016-01-25T10:00:00.816226465Z",
+                                    "latestChatMessage": {
+                                        "id": "BE38FAAC38901BC38A",
+                                        "user": {
+                                            "id": "BC3749DABC391DEF93",
+                                            "name": "John Smith",
+                                            "avatar": "https://some.url/myavatar.png"
+                                        },
+                                        "message": "This is the chat",
+                                        "sentDate": "2016-01-25T10:00:00.816226465Z",
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "url": "/app/chats/C39DBACB38FEDB301D/chatmessages/BE38FAAC38901BC38A",
+                                                "method": "GET"
+                                            }
+                                        ]
+                                    },
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "url": "/app/chats/C39DBACB38FEDB301D",
+                                            "method": "GET"
+                                        },
+                                        {
+                                            "rel": "chatmessages",
+                                            "url": "/app/chats/C39DBACB38FEDB301D/chatmessages",
+                                            "method": "GET"
+                                        },
+                                        {
+                                            "rel": "users",
+                                            "url": "/app/chats/C39DBACB38FEDB301D/users",
+                                            "method": "GET"
+                                        }
+                                    ]
+                                },
+                                "links": [
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/messages/C38CB39ADEF48ADC",
+                                        "method": "PUT",
+                                        "type": "application/json"
+                                    },
+                                    {
+                                        "rel": "self",
+                                        "url": "/app/messages?id[]=C38CB39ADEF48ADC",
+                                        "method": "DELETE"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "message"
+                ]
+            },
+            "put": {
+                "summary": "Update a single message sent to the current app user",
+                "x-swagger-router-controller": "Message",
+                "operationId": "appMeMessagesIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the message to retrieve",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "body",
+                        "description": "The updated status of the message",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/messageStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The requested message is updated"
+                    },
+                    "401": {
+                        "description": "The Auth information supplied was not correct.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "Authorization Failed",
+                                "errorText": "The username, password, or token supplied was incorrect. The user could not be authorized."
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request was invalid.",
+                        "examples": {
+                            "application/json": {
+                                "errorSummary": "The request was invalid.",
+                                "errorText": "The request did not contain all of the elements required."
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "auth": {
+            "type": "object",
+            "title": "Create a new JWT",
+            "properties": {
+                "authType": {
+                    "type": "string",
+                    "enum": [
+                        "mobile"
+                    ]
+                },
+                "authParameters": {
+                    "type": "object",
+                    "title": "The the parameters to be supplied to the auth object",
+                    "properties": {
+                        "mobile": {
+                            "type": "string",
+                            "title": "The mobile number of the user for (Mobile AuthType)"
+                        },
+                        "activationCode": {
+                            "type": "string",
+                            "title": "The activation code that was received in the invitation (Mobile AuthType)"
+                        }
+                    }
+                }
+            }
+        },
+        "renewRequest": {
+            "type": "object",
+            "title": "The JWT to be renewed",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "title": "The JWT to be renewed"
+                }
+            }
+        },
+        "registerRequest": {
+            "type": "object",
+            "title": "the registration object",
+            "properties": {
+                "appId": {
+                    "type": "string",
+                    "title": "the ID of the application being registered to"
+                },
+                "workspaceId": {
+                    "type": "string",
+                    "title": "the ID of the workspace being registered in"
+                },
+                "identifier": {
+                    "type": "string",
+                    "title": "the identifier being used for the registration (e.g. mobile)"
+                }
+            }
+        },
+        "registerResponse": {
+            "type": "object",
+            "title": "the registration response",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "title": "the status of the request"
+                },
+                "summary": {
+                    "type": "string",
+                    "title": "the summary response"
+                }
+            }
+        },
+        "authResponse": {
+            "type": "object",
+            "title": "JWT used for Registrations",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "title": "The token that should be used for device registration"
+                },
+                "jwt": {
+                    "type": "object",
+                    "title": "The unencoded JWT object",
+                    "properties": {
+                        "appId": {
+                            "type": "string",
+                            "title": "The ID for this application"
+                        },
+                        "userId": {
+                            "type": "string",
+                            "title": "The ID for this application User"
+                        },
+                        "type": {
+                            "type": "string",
+                            "title": "The Type of auth token this is",
+                            "enum": [
+                                "APP",
+                                "TEMP"
+                            ]
+                        },
+                        "deviceId": {
+                            "type": "string",
+                            "title": "The device ID (only available in APP tokens)."
+                        },
+                        "iat": {
+                            "type": "string"
+                        },
+                        "exp": {
+                            "type": "string",
+                            "title": "epoch time when this token expires and you need to get a new one"
+                        },
+                        "apikey": {
+                            "type": "string",
+                            "title": "The API Key for this particular application that should be used with api requests"
+                        }
+                    }
+                }
+            }
+        },
+        "application": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the application"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the application"
+                },
+                "description": {
+                    "type": "string",
+                    "title": "The description of the application"
+                },
+                "deviceLimit": {
+                    "type": "string",
+                    "title": "the max number of devices each contact can register on this application"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "user": {
+            "type": "object",
+            "title": "Information about the Application User",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the user"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the user"
+                },
+                "description": {
+                    "type": "string",
+                    "title": "The description field of the contact to use to reduce ambiguity"
+                },
+                "avatar": {
+                    "type": "string",
+                    "title": "The url to the user avatar"
+                }
+            }
+        },
+        "userArray": {
+            "type": "object",
+            "title": "A list of app users",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user"
+                    }
+                }
+            }
+        },
+        "userUpdate": {
+            "type": "object",
+            "title": "The user details to be updated",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "title": "The new avatar to be updated"
+                }
+            }
+        },
+        "deviceRequest": {
+            "type": "object",
+            "title": "The device information",
+            "properties": {
+                "deviceName": {
+                    "type": "string",
+                    "title": "The Name of the device"
+                },
+                "platform": {
+                    "type": "string",
+                    "title": "The platform being registered",
+                    "enum": [
+                        "ANDROID",
+                        "IOS"
+                    ]
+                },
+                "pushProvider": {
+                    "type": "string",
+                    "title": "The push provider that is being registered with for this device",
+                    "enum": [
+                        "GCM",
+                        "APNS",
+                        "APNS_SANDBOX"
+                    ]
+                },
+                "deviceOS": {
+                    "type": "string",
+                    "title": "The specific OS version running on this device"
+                },
+                "deviceModel": {
+                    "type": "string",
+                    "title": "The model of the device being registered"
+                },
+                "appVersion": {
+                    "type": "string",
+                    "title": "The version of the current installed application"
+                },
+                "pushToken": {
+                    "type": "string",
+                    "title": "The APNS or GCM Token for Push Notifications"
+                }
+            }
+        },
+        "deviceResponse": {
+            "type": "object",
+            "title": "The device information",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The generated ID of this device"
+                },
+                "deviceName": {
+                    "type": "string",
+                    "title": "The Name of the device"
+                },
+                "platform": {
+                    "type": "string",
+                    "title": "The platform being registered",
+                    "enum": [
+                        "ANDROID",
+                        "IOS"
+                    ]
+                },
+                "pushProvider": {
+                    "type": "string",
+                    "title": "The push provider that is being registered with for this device",
+                    "enum": [
+                        "GCM",
+                        "APNS",
+                        "APNS_SANDBOX"
+                    ]
+                },
+                "deviceOS": {
+                    "type": "string",
+                    "title": "The specific OS version running on this device"
+                },
+                "deviceModel": {
+                    "type": "string",
+                    "title": "The model of the device being registered"
+                },
+                "pushToken": {
+                    "type": "string",
+                    "title": "The APNS or GCM Token for Push Notifications"
+                },
+                "appVersion": {
+                    "type": "string",
+                    "title": "The version of the application that has been registered on this device"
+                },
+                "createdDate": {
+                    "type": "string",
+                    "title": "The date of registration of the device"
+                },
+                "lastModifiedDate": {
+                    "type": "string",
+                    "title": "The date the device was last modified"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "workspace": {
+            "type": "object",
+            "title": "The workspace information",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the workspace"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the workspace"
+                },
+                "unreadCount": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The number of unread messages for this user"
+                }
+            }
+        },
+        "singleMessageResponse": {
+            "type": "object",
+            "title": "The message information",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string",
+                    "title": "The subject of the message"
+                },
+                "body": {
+                    "type": "string",
+                    "title": "The content of the SMS message"
+                },
+                "sentDate": {
+                    "type": "string",
+                    "title": "The time that the message was sent"
+                },
+                "webUrl": {
+                    "type": "string",
+                    "title": "The URL to the associated Rich Message"
+                },
+                "workspaceId": {
+                    "type": "string",
+                    "title": "The ID of the workspace.  If blank, this is the default workspace."
+                },
+                "categories": {
+                    "type": "string"
+                },
+                "read": {
+                    "type": "boolean",
+                    "title": "The current status of the message for this recipient"
+                },
+                "recipientsExceededForChat": {
+                    "type": "boolean",
+                    "title": "Flag whether chat can't be used because there are more than 50 recipients"
+                },
+                "chatDisabledByUser": {
+                    "type": "boolean",
+                    "title": "Flag whether chat can't be used because the user has disabled it"
+                },
+                "chat": {
+                    "$ref": "#/definitions/chatResponse"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "message": {
+            "type": "object",
+            "title": "The message information",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string",
+                    "title": "The subject of the message"
+                },
+                "body": {
+                    "type": "string",
+                    "title": "The content of the SMS message"
+                },
+                "sentDate": {
+                    "type": "string",
+                    "title": "The time that the message was sent"
+                },
+                "webUrl": {
+                    "type": "string",
+                    "title": "The URL to the associated Rich Message"
+                },
+                "workspaceId": {
+                    "type": "string",
+                    "title": "The ID of the workspace.  If blank, this is the default workspace."
+                },
+                "categories": {
+                    "type": "string"
+                },
+                "read": {
+                    "type": "boolean",
+                    "title": "The current status of the message for this recipient"
+                },
+                "chat": {
+                    "$ref": "#/definitions/chatResponse"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "messageStatus": {
+            "type": "object",
+            "title": "The status of the message",
+            "properties": {
+                "read": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "deviceArray": {
+            "type": "object",
+            "title": "The list of devices",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/deviceResponse"
+                    }
+                }
+            }
+        },
+        "messageArray": {
+            "type": "object",
+            "title": "The list of messages",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/message"
+                    }
+                }
+            }
+        },
+        "workspacesArray": {
+            "type": "object",
+            "title": "The list of workspaces",
+            "properties": {
+                "workspaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workspace"
+                    }
+                }
+            }
+        },
+        "link": {
+            "type": "object",
+            "title": "Reference Link to related functions or data",
+            "properties": {
+                "rel": {
+                    "type": "string",
+                    "title": "The description of the link"
+                },
+                "uri": {
+                    "type": "string",
+                    "title": "The url to access the information"
+                },
+                "method": {
+                    "type": "string",
+                    "title": "The HTTP Method that should be used for this URI"
+                }
+            }
+        },
+        "chatRequest": {
+            "type": "object",
+            "title": "The chat request object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "The name of the chat"
+                },
+                "users": {
+                    "type": "array",
+                    "title": "Initial users",
+                    "items": {
+                        "title": "user ID",
+                        "type": "string"
+                    }
+                },
+                "associatedEntities": {
+                    "type": "array",
+                    "title": "Associated Entities",
+                    "items": {
+                        "$ref": "#/definitions/entity"
+                    }
+                }
+            }
+        },
+        "chatUpdateRequest": {
+            "type": "object",
+            "title": "The chat request object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "The name of the chat"
+                },
+                "users": {
+                    "type": "array",
+                    "title": "Updated users",
+                    "items": {
+                        "title": "user ID",
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "entity": {
+            "type": "object",
+            "title": "Associated Entity for a chat",
+            "properties": {
+                "entityType": {
+                    "type": "string",
+                    "title": "The type of entity being referred to.",
+                    "enum": [
+                        "MESSAGE",
+                        "EVENT"
+                    ]
+                },
+                "entityId": {
+                    "type": "string",
+                    "title": "The ID of the entity being referred to."
+                }
+            }
+        },
+        "chatMessageRequest": {
+            "type": "object",
+            "title": "The chat message request object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "title": "The chat message"
+                },
+                "image": {
+                    "type": "string",
+                    "format": "byte",
+                    "title": "The image to be displayed (optional)"
+                }
+            }
+        },
+        "chatMessageResponse": {
+            "type": "object",
+            "title": "The chat message object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the chat message"
+                },
+                "user": {
+                    "$ref": "#/definitions/user"
+                },
+                "message": {
+                    "type": "string",
+                    "title": "The chat message"
+                },
+                "imageThumbnail": {
+                    "type": "string",
+                    "title": "The URL to the image thumbnail"
+                },
+                "imageFullsize": {
+                    "type": "string",
+                    "title": "THe URL to the full size image"
+                },
+                "sentDate": {
+                    "type": "string",
+                    "title": "The date the message was sent"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "chatResponse": {
+            "type": "object",
+            "title": "The chat response object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The unique ID of this chat"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the chat"
+                },
+                "numusers": {
+                    "type": "number",
+                    "title": "The number of participants in this chat"
+                },
+                "read": {
+                    "type": "boolean",
+                    "title": "Flag of whether the chat has been read or not",
+                    "default": true
+                },
+                "lastModifiedDate": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The last modified date for this chat"
+                },
+                "createdDate": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The created date for this chat"
+                },
+                "associatedEntities": {
+                    "type": "array",
+                    "title": "Associated Entities",
+                    "items": {
+                        "$ref": "#/definitions/entity"
+                    }
+                },
+                "latestChatMessage": {
+                    "$ref": "#/definitions/chatMessageResponse"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "Reference Links",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "chatArray": {
+            "type": "object",
+            "title": "The list of chats",
+            "properties": {
+                "chats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/chatResponse"
+                    }
+                }
+            }
+        },
+        "chatMessageArray": {
+            "type": "object",
+            "title": "The list of chats",
+            "properties": {
+                "chats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/chatMessageResponse"
+                    }
+                }
+            }
+        },
+        "default": {
+            "type": "object",
+            "title": "Default Response",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "title": "The status of the mock"
+                }
+            }
+        },
+        "deviceAuth": {
+            "type": "object",
+            "title": "The registered device, and the new auth",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/deviceResponse"
+                },
+                "auth": {
+                    "$ref": "#/definitions/authResponse"
+                }
+            }
+        },
+        "unread": {
+            "type": "object",
+            "title": "The unread status for the chats endpoint",
+            "properties": {
+                "unreadChatsCount": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The total number of chats that have unread messages"
+                },
+                "chats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/unreadChat"
+                    }
+                }
+            }
+        },
+        "unreadChat": {
+            "type": "object",
+            "title": "an unread chat object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the chat that has unread messages"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the chat"
+                },
+                "unreadCount": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The number of unread chatmessages in this chat"
+                }
+            }
+        }
+    }
+}

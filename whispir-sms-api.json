@@ -1,0 +1,181 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir SMS APIs",
+        "description": "Create SMS messages using Whispir's Powerful Conversation APIs.",
+        "version": "1.0.0",
+        "x-gist-id": "05382108d1c003bcf6f6",
+        "x-gist-filename": "sms-message-swagger.json",
+        "x-gist-description": "Whispir SMS API (Swagger v1)"
+    },
+    "host": "api.whispir.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        }
+    },
+    "basePath": "/cors",
+    "produces": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "paths": {
+        "/messages": {
+            "post": {
+                "summary": "Send an SMS message from the default workspace",
+                "description": "Allows the user to send a simple SMS message of up to 1600 characters\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the SMS message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/SMS Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.\n",
+                    "url": "https://whispir.github.io/api/#sms-messages"
+                }
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "summary": "Retrieve the workspace information to allow users to send messages from workspaces.\n",
+                "produces": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The workspaces have been returned successfully\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspaceId}/messages": {
+            "post": {
+                "summary": "Send an SMS message from a specific workspace",
+                "description": "Allows the user to send a simple SMS message of up to 1600 characters\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The ID of the workspace that the message should be sent from."
+                    },
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the SMS message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/SMS Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.\n",
+                    "url": "https://whispir.github.io/api/#sms-messages"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "SMS Message": {
+            "type": "object",
+            "properties": {
+                "to": {
+                    "description": "The recipients of the message. Can be mobile number, email or landline.\n",
+                    "type": "string"
+                },
+                "subject": {
+                    "description": "The subject of the message.",
+                    "type": "string"
+                },
+                "body": {
+                    "description": "The content of the SMS message.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

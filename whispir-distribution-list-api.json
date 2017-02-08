@@ -1,0 +1,523 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Distribution Lists APIs",
+        "description": "Create and manage your Distribution Lists using Whispir's API",
+        "version": "1.0.0",
+        "x-gist-id": "2c1c897bf10c63e59252",
+        "x-gist-filename": "distributionlist-swagger.json",
+        "x-gist-description": "Whispir Distribution Lists API (Swagger v1)"
+    },
+    "host": "api.whispir.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io."
+        }
+    },
+    "basePath": "/cors",
+    "produces": [
+        "application/vnd.whispir.distributionlist-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.distributionlist-v1+json"
+    ],
+    "paths": {
+        "/distributionlists": {
+            "get": {
+                "summary": "Get Lists",
+                "description": "Provides a list of the distribution lists from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "default": "20",
+                        "description": "The number of distribution lists to return. Default 20.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The search result to start retuning results from. Default 0.",
+                        "required": false,
+                        "type": "string",
+                        "default": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of distribution list objects\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new distribution list in the default workspace",
+                "description": "Creates a new distribution list in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Distribution List",
+                        "in": "body",
+                        "required": true,
+                        "description": "The distribution list information that should be created.",
+                        "schema": {
+                            "title": "Distribution List",
+                            "$ref": "#/definitions/distributionlist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The distribution list object has been created\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/distributionlists/{distributionlistId}": {
+            "get": {
+                "summary": "Get a specific distribution list from the default workspace.",
+                "description": "Get a specific distribution list from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be returned",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified distribution list object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a specific distribution list record in the default workspace.",
+                "description": "Update a specific distribution list in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be updated",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Distribution List",
+                        "in": "body",
+                        "description": "The Distribution List Object to be updated",
+                        "required": true,
+                        "schema": {
+                            "title": "Distribution List",
+                            "$ref": "#/definitions/distributionlist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified distribution list object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific distribution list record in the default workspace.",
+                "description": "Delete a specific distribution list in the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be updated",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The specified distribution list object is deleted.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "summary": "Retrieve the workspace information to allow users to send messages from workspaces.\n",
+                "produces": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The workspaces have been returned successfully\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspaceId}/distributionlists": {
+            "get": {
+                "summary": "Get distribution lists from a specific workspace",
+                "description": "Provides a list of the distribution lists from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Workspace ID that should be used to search for distribution lists",
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "default": "20",
+                        "description": "The number of distribution list to return. Default 20.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "The search result to start retuning results from. Default 0.",
+                        "required": false,
+                        "type": "string",
+                        "default": "0"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of distribution list objects\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new distribution list in the specified workspace",
+                "description": "Creates a new distribution list in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Workspace ID that should be used to create the distribution list",
+                        "type": "string"
+                    },
+                    {
+                        "name": "Distribution List",
+                        "in": "body",
+                        "required": true,
+                        "description": "The distribution list information that should be created.",
+                        "schema": {
+                            "title": "Distribution List",
+                            "$ref": "#/definitions/distributionlist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The distribution list has been created\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspaceId}/distributionlists/{distributionlistId}": {
+            "get": {
+                "summary": "Get a specific distribution list from the default workspace.",
+                "description": "Get a specific distribution list from the default workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be returned",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified distribution list object is returned.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a specific distribution list record in the specified workspace.",
+                "description": "Update a specific distribution list in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be updated",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Distribution List",
+                        "in": "body",
+                        "description": "The Distribution List Object to be updated",
+                        "required": true,
+                        "schema": {
+                            "title": "Distribution List",
+                            "$ref": "#/definitions/distributionlist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The specified distribution list object is updated.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific distribution list record in the specified workspace.",
+                "description": "Delete a specific distribution list in the specified workspace.\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "description": "The ID of the workspace to be searched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "distributionlistId",
+                        "in": "path",
+                        "description": "The ID of the distribution list to be updated",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The specified distribution list object is deleted.\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "distributionlist": {
+            "title": "Distribution List Information",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Contact Type",
+                    "description": "The contact type (Company or Project)",
+                    "type": "string",
+                    "default": "COMPANY",
+                    "enum": [
+                        "COMPANY"
+                    ]
+                }
+            }
+        }
+    }
+}

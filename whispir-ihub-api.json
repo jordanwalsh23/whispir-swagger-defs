@@ -1,0 +1,1648 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Information Hub API",
+        "description": "As a large amount of the information that is used within customer notifications comes from external information sources, Whispir will be enhanced to include a capability where users can maintain these external sources, and set up new ones as required.\n\nThis capability (called the **Information Hub**) will be made available in the Administration module of the Whispir Platform, to all users with the Company Administrator role. \n\nThis capability allows these users to configure and change the information sources they want to utilise within their Whispir Events and Whispir Messages. \n\nAs per the Whispir Platform, the Whispir Information Hub is available to be accessed via the Whispir API.\n\nThis allows developers to configure their applications to feed data into Whispir in real time to be processed by the Information Hub and the resulting Whispir Actions to be performed.\n\nThe key functions that will be supported by the Whispir Information Hub API are as follows:\n\n* Ability to configure Information Sources (Create, Read, Update, Delete)\n* Ability to manage the documents within an Information Source (Create, Read, Update, Delete)\n* Ability to query the data that is currently available within an Information Source\n\nTo facilitate these use cases, Whispir will provide the following API Endpoints:\n\n```\n/sources\n/sources/search\n/sources/:id\n/sources/:id/status\n/sources/:id/fields\n/sources/:id/documents\n/sources/:id/documents/:id\n```\n",
+        "version": "1.0.0",
+        "x-gist-id": "f8fc9804652bd2ac2ae2",
+        "x-gist-filename": "information-api-swagger.json",
+        "x-gist-description": "Whispir Information Hub API (Swagger v1)"
+    },
+    "host": "whispirinfohub.herokuapp.com",
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        },
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/",
+    "paths": {
+        "/auth": {
+            "post": {
+                "summary": "Create a new JWT",
+                "x-swagger-router-controller": "Auth",
+                "operationId": "authPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.auth-v1+json",
+                    "application/vnd.whispir.auth-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.auth-v1+json",
+                    "application/vnd.whispir.auth-v1+xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The JWT is returned",
+                        "schema": {
+                            "$ref": "#/definitions/authResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            },
+                            "application/xml": {
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/sources": {
+            "post": {
+                "summary": "Create a new information source.",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "source",
+                        "in": "body",
+                        "required": true,
+                        "description": "The information source schema",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-source-v1+json",
+                    "application/vnd.whispir.infohub-source-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.infohub-source-v1+json",
+                    "application/vnd.whispir.infohub-source-v1+xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The information source has been created",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceResponse"
+                        },
+                        "examples": {
+                            "id": "CB374DBCAEDF473",
+                            "name": "Severe Weather Warnings",
+                            "description": "",
+                            "license": "MIT",
+                            "visibility": "public",
+                            "input": {
+                                "type": "json",
+                                "url": "https://my.data.source.com/data.aspx?apikey=abcd1234",
+                                "headers": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Basic abc1234"
+                                    }
+                                ]
+                            },
+                            "output": {
+                                "onChange": "Action 1"
+                            },
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "update",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-source-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "delete",
+                                    "method": "DELETE",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            },
+            "get": {
+                "summary": "Retrieves an information source using search criteria",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "created",
+                        "in": "query",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "updated",
+                        "in": "query",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-source-v1+json",
+                    "application/vnd.whispir.infohub-source-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source has been created.",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceArray"
+                        },
+                        "examples": {
+                            "sources": [
+                                {
+                                    "id": "CB374DBCAEDF473",
+                                    "name": "Severe Weather Warnings",
+                                    "description": "",
+                                    "license": "MIT",
+                                    "visibility": "public",
+                                    "input": {
+                                        "type": "json",
+                                        "url": "https://my.data.source.com/data.aspx?apikey=abcd1234",
+                                        "headers": [
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Basic abc1234"
+                                            }
+                                        ]
+                                    },
+                                    "output": {
+                                        "onChange": "Action 1"
+                                    },
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "method": "GET",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "update",
+                                            "method": "PUT",
+                                            "type": "application/vnd.whispir.infohub-source-v1+json",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "delete",
+                                            "method": "DELETE",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/sources/{sourceId}": {
+            "get": {
+                "summary": "Create a new information source.",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesSourceIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-source-v1+json",
+                    "application/vnd.whispir.infohub-source-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceResponse"
+                        },
+                        "examples": {
+                            "id": "CB374DBCAEDF473",
+                            "name": "Severe Weather Warnings",
+                            "description": "",
+                            "license": "MIT",
+                            "visibility": "public",
+                            "input": {
+                                "type": "json",
+                                "url": "https://my.data.source.com/data.aspx?apikey=abcd1234",
+                                "headers": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Basic abc1234"
+                                    }
+                                ]
+                            },
+                            "output": {
+                                "onChange": "Action 1"
+                            },
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "update",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-source-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "delete",
+                                    "method": "DELETE",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            },
+            "put": {
+                "summary": "Update the information source",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesSourceIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "source",
+                        "in": "body",
+                        "required": true,
+                        "description": "The information source schema",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceRequest"
+                        }
+                    }
+                ],
+                "consumes": [
+                    "application/vnd.whispir.infohub-source-v1+json",
+                    "application/vnd.whispir.infohub-source-v1+xml"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source has been updated"
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            },
+            "delete": {
+                "summary": "Delete the information source",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesSourceIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source has been deleted"
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/sources/{sourceId}/status": {
+            "get": {
+                "summary": "Retrieve the current status of an information source",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesSourceIdStatusGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-status-v1+json",
+                    "application/vnd.whispir.infohub-status-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source status",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceStatusResponse"
+                        },
+                        "examples": {
+                            "enabled": false,
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "enable",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-status-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/status?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            },
+            "put": {
+                "summary": "Update the current status of an information source",
+                "x-swagger-router-controller": "Sources",
+                "operationId": "sourcesSourceIdStatusPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    }
+                ],
+                "consumes": [
+                    "application/vnd.whispir.infohub-status-v1+json",
+                    "application/vnd.whispir.infohub-status-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source status has been updated",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceStatusResponse"
+                        },
+                        "examples": {
+                            "enabled": true,
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "disable",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-status-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/status?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/sources/{sourceId}/fields": {
+            "get": {
+                "summary": "Retrieve the current list of fields of an information source",
+                "x-swagger-router-controller": "Fields",
+                "operationId": "sourcesSourceIdFieldsGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "The name of the field to return",
+                        "type": "string"
+                    },
+                    {
+                        "name": "path",
+                        "in": "query",
+                        "description": "The path of the field to return",
+                        "type": "string"
+                    },
+                    {
+                        "name": "fieldType",
+                        "in": "query",
+                        "description": "The fieldType of the field to return",
+                        "type": "string"
+                    },
+                    {
+                        "name": "analyse",
+                        "in": "query",
+                        "description": "The analyse type of the field to return",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "description": "The key type of the field to return",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "created",
+                        "in": "query",
+                        "description": "The created date of the field to return",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "updated",
+                        "in": "query",
+                        "description": "The updated date of the field to return",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-field-v1+json",
+                    "application/vnd.whispir.infohub-field-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source fields have been returned",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceFieldArray"
+                        },
+                        "examples": {
+                            "fields": [
+                                {
+                                    "id": "AB374BDCE738DCBA",
+                                    "name": "id",
+                                    "path": "/product/amoc/id/text()",
+                                    "key": true,
+                                    "updateField": false,
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "method": "GET",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "update",
+                                            "method": "PUT",
+                                            "type": "application/vnd.whispir.infohub-field-v1+json",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "delete",
+                                            "method": "DELETE",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "fields"
+                ]
+            },
+            "post": {
+                "summary": "Create a new field on an information source",
+                "x-swagger-router-controller": "Fields",
+                "operationId": "sourcesSourceIdFieldsPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "field",
+                        "in": "body",
+                        "required": true,
+                        "description": "The information source field to be created",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceFieldRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-field-v1+json",
+                    "application/vnd.whispir.infohub-field-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.infohub-field-v1+json",
+                    "application/vnd.whispir.infohub-field-v1+xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The information source field has been created",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceFieldResponse"
+                        },
+                        "examples": {
+                            "id": "AB374BDCE738DCBA",
+                            "name": "id",
+                            "path": "/product/amoc/id/text()",
+                            "type": "text",
+                            "analyse": true,
+                            "key": true,
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "update",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-field-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "delete",
+                                    "method": "DELETE",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "fields"
+                ]
+            }
+        },
+        "/sources/{sourceId}/fields/{fieldId}": {
+            "get": {
+                "summary": "Retrieve an information source field by ID",
+                "x-swagger-router-controller": "Fields",
+                "operationId": "sourcesSourceIdFieldsFieldIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "fieldId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source fieldid",
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-field-v1+json",
+                    "application/vnd.whispir.infohub-field-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source field",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceFieldResponse"
+                        },
+                        "examples": {
+                            "id": "AB374BDCE738DCBA",
+                            "name": "id",
+                            "path": "/product/amoc/id/text()",
+                            "type": "text",
+                            "analyse": true,
+                            "key": true,
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "update",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-field-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "delete",
+                                    "method": "DELETE",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/fields/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "fields"
+                ]
+            },
+            "put": {
+                "summary": "Update an information source field by ID",
+                "x-swagger-router-controller": "Fields",
+                "operationId": "sourcesSourceIdFieldsFieldIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "fieldId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source fieldid",
+                        "type": "string"
+                    }
+                ],
+                "consumes": [
+                    "application/vnd.whispir.infohub-field-v1+json",
+                    "application/vnd.whispir.infohub-field-v1+xml"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source field has been updated"
+                    }
+                },
+                "tags": [
+                    "fields"
+                ]
+            },
+            "delete": {
+                "summary": "Delete an information source field by ID",
+                "x-swagger-router-controller": "Fields",
+                "operationId": "sourcesSourceIdFieldsFieldIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "fieldId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source fieldid",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source field has been deleted"
+                    }
+                },
+                "tags": [
+                    "fields"
+                ]
+            }
+        },
+        "/sources/{sourceId}/documents": {
+            "get": {
+                "summary": "Retrieve the current list of documents within an information source",
+                "x-swagger-router-controller": "Documents",
+                "operationId": "sourcesSourceIdDocumentsGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-document-v1+json",
+                    "application/vnd.whispir.infohub-document-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source documents have been returned",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceDocumentsArray"
+                        },
+                        "examples": {
+                            "documents": [
+                                {
+                                    "id": "AB374BDCE738DCBA",
+                                    "somedata": "somevalue",
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "method": "GET",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "update",
+                                            "method": "PUT",
+                                            "type": "application/vnd.whispir.infohub-field-v1+json",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "delete",
+                                            "method": "DELETE",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "documents"
+                ]
+            },
+            "post": {
+                "summary": "Create a new document within an information source",
+                "x-swagger-router-controller": "Documents",
+                "operationId": "sourcesSourceIdDocumentsPost",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "document",
+                        "in": "body",
+                        "required": true,
+                        "description": "The document to be stored in the information source",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceDocumentRequest"
+                        }
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-document-v1+json",
+                    "application/vnd.whispir.infohub-document-v1+xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The information source documents have been returned",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceDocumentResponse"
+                        },
+                        "examples": {
+                            "documents": [
+                                {
+                                    "id": "AB374BDCE738DCBA",
+                                    "document": {
+                                        "somedata": "somevalue"
+                                    },
+                                    "links": [
+                                        {
+                                            "rel": "self",
+                                            "method": "GET",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "update",
+                                            "method": "PUT",
+                                            "type": "application/vnd.whispir.infohub-field-v1+json",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        },
+                                        {
+                                            "rel": "delete",
+                                            "method": "DELETE",
+                                            "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "documents"
+                ]
+            }
+        },
+        "/sources/{sourceId}/documents/{documentId}": {
+            "get": {
+                "summary": "Retrieve the current list of documents within an information source",
+                "x-swagger-router-controller": "Documents",
+                "operationId": "sourcesSourceIdDocumentsDocumentIdGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source document id",
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-document-v1+json",
+                    "application/vnd.whispir.infohub-document-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source document has been returned",
+                        "schema": {
+                            "$ref": "#/definitions/informationSourceDocumentsArray"
+                        },
+                        "examples": {
+                            "id": "AB374BDCE738DCBA",
+                            "somedata": "somevalue",
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "method": "GET",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "update",
+                                    "method": "PUT",
+                                    "type": "application/vnd.whispir.infohub-field-v1+json",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                },
+                                {
+                                    "rel": "delete",
+                                    "method": "DELETE",
+                                    "url": "https://api.whispir.com/sources/CB374DBCAEDF473/documents/AB374BDCE738DCBA?apikey=csbjdsbosdobcdbcosboi"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "documents"
+                ]
+            },
+            "put": {
+                "summary": "Update a document within an information source",
+                "x-swagger-router-controller": "Documents",
+                "operationId": "sourcesSourceIdDocumentsDocumentIdPut",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source document id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "document",
+                        "in": "body",
+                        "required": true,
+                        "description": "The information source document",
+                        "schema": {
+                            "$ref": "#/definitions/infoSourceDocumentRequest"
+                        }
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-document-v1+json",
+                    "application/vnd.whispir.infohub-document-v1+xml"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source document has been updated"
+                    }
+                },
+                "tags": [
+                    "documents"
+                ]
+            },
+            "delete": {
+                "summary": "Delete a document from an information source",
+                "x-swagger-router-controller": "Documents",
+                "operationId": "sourcesSourceIdDocumentsDocumentIdDelete",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sourceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source id",
+                        "type": "string"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The information source document id",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The information source document has been deleted"
+                    }
+                },
+                "tags": [
+                    "documents"
+                ]
+            }
+        },
+        "/sources/search": {
+            "get": {
+                "summary": "Retrieve a list of documents across sources that match some query parameters",
+                "x-swagger-router-controller": "Search",
+                "operationId": "sourcesSearchGet",
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "The string to search for within the documents",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "sourceIds",
+                        "in": "query",
+                        "description": "The source IDs to search through",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi"
+                    },
+                    {
+                        "name": "created",
+                        "in": "query",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "updated",
+                        "in": "query",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.infohub-document-v1+json",
+                    "application/vnd.whispir.infohub-document-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The information source document has been returned",
+                        "schema": {
+                            "$ref": "#/definitions/searchResultsContainer"
+                        },
+                        "examples": {
+                            "metrics": {
+                                "took": 74,
+                                "timed_out": false,
+                                "total": 1,
+                                "max_score": 1
+                            },
+                            "results": [
+                                {
+                                    "source": "BC34DCAD489DF01D",
+                                    "score": 0.4859,
+                                    "document": {
+                                        "somedata": "somevalue"
+                                    }
+                                },
+                                {
+                                    "source": "C9034DFDAAC34DCF",
+                                    "score": 0.1264,
+                                    "document": {
+                                        "somedata2": "somevalue2"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "tags": [
+                    "search"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "informationSourceArray": {
+            "type": "object",
+            "title": "Information Sources",
+            "xml": {
+                "name": "infohub-source-array-v1",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns3"
+            },
+            "description": "A list of the current information sources",
+            "properties": {
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/informationSourceRequest"
+                    }
+                }
+            }
+        },
+        "informationSourceRequest": {
+            "type": "object",
+            "title": "Information Source",
+            "xml": {
+                "name": "infohub-source-v1"
+            },
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the information source",
+                    "pattern": "^[a-zA-Z0-9\\_\\-]+$"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of the information within the information source."
+                },
+                "visibility": {
+                    "type": "string",
+                    "description": "The visibility setting for this information source",
+                    "enum": [
+                        "PUBLIC",
+                        "PRIVATE"
+                    ]
+                },
+                "license": {
+                    "type": "string",
+                    "description": "The appropriate data licence for this information source"
+                },
+                "input": {
+                    "$ref": "#/definitions/infoSourceInputRequest"
+                },
+                "output": {
+                    "$ref": "#/definitions/infoSourceOutputRequest"
+                }
+            }
+        },
+        "infoSourceInputRequest": {
+            "type": "object",
+            "title": "Input Source Info",
+            "xml": {
+                "name": "infoSourceInput"
+            },
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "The data type of the input being provided",
+                    "enum": [
+                        "json",
+                        "xml",
+                        "rss"
+                    ]
+                },
+                "url": {
+                    "type": "string",
+                    "description": "The provided value must be a valid URL",
+                    "pattern": "^(https?|ftp:\\/\\/)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$"
+                },
+                "headers": {
+                    "type": "array",
+                    "title": "Header Parameters",
+                    "items": {
+                        "$ref": "#/definitions/keyValuePair"
+                    }
+                }
+            }
+        },
+        "infoSourceOutputRequest": {
+            "type": "object",
+            "title": "Output Information",
+            "xml": {
+                "name": "infoSourceOutput"
+            },
+            "description": "The functions that should be invoked when the information source has been modified",
+            "properties": {
+                "onChange": {
+                    "type": "string",
+                    "description": "The name of the Whispir Action to invoke when new data is inserted into the source"
+                }
+            }
+        },
+        "infoSourceResponse": {
+            "description": "Extended information source for response",
+            "xml": {
+                "name": "infoSourceResponse"
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/informationSourceRequest"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "created": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "updated": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "links": {
+                            "type": "array",
+                            "xml": {
+                                "wrapped": false
+                            },
+                            "items": {
+                                "$ref": "#/definitions/refLinks"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "infoSourceStatusResponse": {
+            "description": "Status of the information source",
+            "xml": {
+                "name": "infoSourceStatusResponse"
+            },
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "links": {
+                    "type": "array",
+                    "xml": {
+                        "wrapped": false
+                    },
+                    "items": {
+                        "$ref": "#/definitions/refLinks"
+                    }
+                }
+            }
+        },
+        "keyValuePair": {
+            "type": "object",
+            "xml": {
+                "name": "keyvaluepair"
+            },
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": "The key that should be used in the query or header"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "The value that should be used with the associated key."
+                }
+            }
+        },
+        "refLinks": {
+            "type": "object",
+            "xml": {
+                "name": "link"
+            },
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "xml": {
+                        "attribute": true
+                    }
+                },
+                "rel": {
+                    "type": "string",
+                    "xml": {
+                        "attribute": true
+                    }
+                },
+                "method": {
+                    "type": "string",
+                    "xml": {
+                        "attribute": true
+                    }
+                },
+                "type": {
+                    "type": "string",
+                    "xml": {
+                        "attribute": true
+                    }
+                }
+            }
+        },
+        "informationSourceFieldArray": {
+            "type": "object",
+            "xml": {
+                "name": "informationSourceFieldArray"
+            },
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/infoSourceFieldResponse"
+                    }
+                }
+            }
+        },
+        "infoSourceFieldRequest": {
+            "type": "object",
+            "xml": {
+                "name": "infoSourceFieldRequest"
+            },
+            "required": [
+                "name",
+                "path",
+                "type",
+                "analyse",
+                "key"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "text",
+                        "timestamp",
+                        "date-time",
+                        "integer"
+                    ]
+                },
+                "analyse": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "boolean"
+                },
+                "updateField": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "infoSourceFieldResponse": {
+            "title": "InformationSourceFields",
+            "description": "Extended information source fields for response",
+            "xml": {
+                "name": "infoSourceFieldResponse"
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/infoSourceFieldRequest"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "created": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "updated": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "links": {
+                            "type": "array",
+                            "xml": {
+                                "wrapped": false
+                            },
+                            "items": {
+                                "$ref": "#/definitions/refLinks"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "informationSourceDocumentsArray": {
+            "title": "InformationSourceDocuments",
+            "xml": {
+                "name": "informationSourceDocumentsArray"
+            },
+            "properties": {
+                "documents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/infoSourceDocumentResponse"
+                    }
+                }
+            }
+        },
+        "infoSourceDocumentRequest": {
+            "type": "string",
+            "xml": {
+                "name": "infoSourceDocumentRequest"
+            }
+        },
+        "infoSourceDocumentResponse": {
+            "title": "InformationSourceDocuments",
+            "description": "Extended information document fields for response",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/infoSourceDocumentRequest"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "created": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "updated": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "links": {
+                            "type": "array",
+                            "xml": {
+                                "wrapped": false
+                            },
+                            "items": {
+                                "$ref": "#/definitions/refLinks"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "searchResultsContainer": {
+            "type": "object",
+            "title": "SearchResults",
+            "properties": {
+                "metrics": {
+                    "$ref": "#/definitions/searchResultsMetrics"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/searchResult"
+                    }
+                }
+            }
+        },
+        "searchResultsMetrics": {
+            "type": "object",
+            "title": "Metrics",
+            "properties": {
+                "took": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "timed_out": {
+                    "type": "boolean"
+                },
+                "total": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "max_score": {
+                    "type": "number",
+                    "format": "int32"
+                }
+            }
+        },
+        "searchResult": {
+            "type": "object",
+            "properties": {
+                "source": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "document": {
+                    "$ref": "#/definitions/infoSourceDocumentResponse"
+                }
+            }
+        },
+        "authResponse": {
+            "type": "object",
+            "xml": {
+                "name": "auth",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns3"
+            },
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

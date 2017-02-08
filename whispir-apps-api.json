@@ -1,0 +1,958 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Apps APIs",
+        "description": "Create Applications on Whispir to utilise Push Notifications and Chat based Messaging",
+        "version": "1.0.0",
+        "x-gist-id": "ba16750896107be67b91",
+        "x-gist-filename": "apps-api-swagger.json",
+        "x-gist-description": "Whispir Apps API (Swagger v1)"
+    },
+    "host": "whispir-apps-api-mock.herokuapp.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        }
+    },
+    "basePath": "/",
+    "produces": [
+        "application/vnd.whispir.application-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.application-v1+json"
+    ],
+    "paths": {
+        "/apps": {
+            "post": {
+                "summary": "Create a new Application to utilise Whispir push notifications.",
+                "x-swagger-router-controller": "Apps",
+                "operationId": "appsPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "app",
+                        "in": "body",
+                        "required": true,
+                        "description": "The application details to be created and saved in Whispir.",
+                        "schema": {
+                            "$ref": "#/definitions/applicationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The Application has been created.",
+                        "schema": {
+                            "$ref": "#/definitions/applicationResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "BC473BCDFECBE384",
+                                "name": "Sample Application",
+                                "description": "Sample Whispir Application for Push Notifications\n",
+                                "options": {
+                                    "apikey": "ab3bfe83hff8fnf0wfdfiusb02",
+                                    "clientSecret": "8ddfs90f90df90df9j0d90jfds0j9fd0j990jfd",
+                                    "deviceLimit": 3,
+                                    "workspaces": "B38CBDEFADE38FDE,E3DABCF485FD458D",
+                                    "contactDescriptionField": "jobTitle"
+                                },
+                                "apns": {
+                                    "certificateDate": "2016-01-25T10:00:00,816226465Z"
+                                },
+                                "gcm": {
+                                    "gcmProjectId": "whispir-sample-application",
+                                    "gcmProjectNumber": "199337176512",
+                                    "gcmApiKey": "AIzaSyARTfazpXVmt7TvyYp4DkGAw59rjpdzKdQ"
+                                },
+                                "defaultWorkspaceEnabled": true,
+                                "registrationTypes": [
+                                    "INVITE"
+                                ],
+                                "managedBySystem": false,
+                                "links": [
+                                    {
+                                        "rel": "update",
+                                        "url": "/apps/BC473BCDFECBE384",
+                                        "method": "PUT",
+                                        "type": "application/vnd.whispir.application-v1+json;application/vnd.whispir.application-v1+xml"
+                                    },
+                                    {
+                                        "rel": "delete",
+                                        "url": "/apps/BC473BCDFECBE384",
+                                        "method": "DELETE"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "Not all information was provided to meet this request.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "apps"
+                ]
+            },
+            "get": {
+                "summary": "Retrieve a list of applications from Whispir",
+                "x-swagger-router-controller": "Apps",
+                "operationId": "appsGet",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The list of applications is returned.",
+                        "schema": {
+                            "$ref": "#/definitions/applicationsArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "applications": [
+                                    {
+                                        "id": "BC473BCDFECBE384",
+                                        "name": "Sample Application",
+                                        "description": "Sample Whispir Application for Push Notifications\n",
+                                        "options": {
+                                            "apikey": "ab3bfe83hff8fnf0wfdfiusb02",
+                                            "clientSecret": "8ddfs90f90df90df9j0d90jfds0j9fd0j990jfd",
+                                            "deviceLimit": 3,
+                                            "workspaces": "B38CBDEFADE38FDE,E3DABCF485FD458D",
+                                            "contactDescriptionField": "jobTitle"
+                                        },
+                                        "apns": {
+                                            "certificateDate": "2016-01-25T10:00:00,816226465Z"
+                                        },
+                                        "gcm": {
+                                            "gcmProjectId": "whispir-sample-application",
+                                            "gcmProjectNumber": "199337176512",
+                                            "gcmApiKey": "AIzaSyARTfazpXVmt7TvyYp4DkGAw59rjpdzKdQ"
+                                        },
+                                        "defaultWorkspaceEnabled": true,
+                                        "registrationTypes": [
+                                            "INVITE"
+                                        ],
+                                        "managedBySystem": false,
+                                        "links": [
+                                            {
+                                                "rel": "update",
+                                                "url": "/apps/BC473BCDFECBE384",
+                                                "method": "PUT",
+                                                "type": "application/vnd.whispir.application-v1+json;application/vnd.whispir.application-v1+xml"
+                                            },
+                                            {
+                                                "rel": "delete",
+                                                "url": "/apps/BC473BCDFECBE384",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "BC473BCDFECBE385",
+                                        "name": "Sample Application 2",
+                                        "description": "Sample Whispir Application for Push Notifications\n",
+                                        "options": {
+                                            "apikey": "ab3bfe83hff8fnf0wfdfiusb02",
+                                            "clientSecret": "8ddfs90f90df90df9j0d90jfds0j9fd0j990jfd",
+                                            "deviceLimit": 3,
+                                            "workspaces": "B38CBDEFADE38FDE,E3DABCF485FD458D",
+                                            "contactDescriptionField": "jobTitle"
+                                        },
+                                        "apns": {
+                                            "certificateDate": "2016-01-25T10:00:00,816226465Z"
+                                        },
+                                        "gcm": {
+                                            "gcmProjectId": "whispir-sample-application",
+                                            "gcmProjectNumber": "199337176512",
+                                            "gcmApiKey": "AIzaSyARTfazpXVmt7TvyYp4DkGAw59rjpdzKdQ"
+                                        },
+                                        "defaultWorkspaceEnabled": true,
+                                        "registrationTypes": [
+                                            "INVITE"
+                                        ],
+                                        "managedBySystem": false,
+                                        "links": [
+                                            {
+                                                "rel": "update",
+                                                "url": "/apps/BC473BCDFECBE385",
+                                                "method": "PUT",
+                                                "type": "application/vnd.whispir.application-v1+json;application/vnd.whispir.application-v1+xml"
+                                            },
+                                            {
+                                                "rel": "delete",
+                                                "url": "/apps/BC473BCDFECBE385",
+                                                "method": "DELETE"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "apps"
+                ]
+            }
+        },
+        "/apps/{appId}": {
+            "put": {
+                "summary": "Update an existing Application with new information.",
+                "x-swagger-router-controller": "Apps",
+                "operationId": "appsAppIdPut",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "appId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the application being requested.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "app",
+                        "in": "body",
+                        "required": true,
+                        "description": "The application details to be updated in Whispir.",
+                        "schema": {
+                            "$ref": "#/definitions/applicationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The Application has been updated."
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "Not all information was provided to meet this request.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "apps"
+                ]
+            },
+            "delete": {
+                "summary": "Delete an application from Whispir",
+                "x-swagger-router-controller": "Apps",
+                "operationId": "appsAppIdDelete",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "appId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the application being deleted.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "An application is deleted."
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "apps"
+                ]
+            }
+        },
+        "/workspaces/{workspaceId}/invites": {
+            "post": {
+                "summary": "Send an invitation to a Whispir Contact",
+                "x-swagger-router-controller": "Invites",
+                "operationId": "workspacesWorkspaceIdInvitesPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the workspace being used.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "invite",
+                        "in": "body",
+                        "required": true,
+                        "description": "The invitation object containing the recipients and message content",
+                        "schema": {
+                            "$ref": "#/definitions/inviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The invitation has been sent",
+                        "schema": {
+                            "$ref": "#/definitions/defaultResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "status": "SUCCESS",
+                                "message": "Your message has been accepted for processing."
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "invites"
+                ]
+            },
+            "get": {
+                "summary": "Get a list of previously sent invitations",
+                "x-swagger-router-controller": "Invites",
+                "operationId": "workspacesWorkspaceIdInvitesGet",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the workspace being used.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The list of invitations",
+                        "schema": {
+                            "$ref": "#/definitions/inviteArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "invites": [
+                                    {
+                                        "id": "B384CFD912ADE903",
+                                        "appId": "C39EFDBCAE349DFE",
+                                        "sentDate": "2016-01-25T10:00:00,816226465Z",
+                                        "from": "John Smith",
+                                        "result": {
+                                            "sent": 46,
+                                            "accepted": 12
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "method": "GET",
+                                                "url": "/workspaces/B384DEFE3891AFCB/invites/B384CFD912ADE903"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "AAF384FED8490DFE",
+                                        "appId": "C39EFDBCAE349DFE",
+                                        "sentDate": "2016-01-25T10:00:00,816226465Z",
+                                        "from": "John Smith",
+                                        "result": {
+                                            "sent": 46,
+                                            "accepted": 12
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "self",
+                                                "method": "GET",
+                                                "url": "/workspaces/B384DEFE3891AFCB/invites/AAF384FED8490DFE"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "invites"
+                ]
+            }
+        },
+        "/workspaces/{workspaceId}/invites/{inviteId}": {
+            "get": {
+                "summary": "Retrieve an existing invitation sent to whispir contacts",
+                "x-swagger-router-controller": "Invites",
+                "operationId": "workspacesWorkspaceIdInvitesInviteIdGet",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.invite-v1+json",
+                    "application/vnd.whispir.invite-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the workspace being used.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "inviteId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ID of the invite being retrieved.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The invitation has been sent",
+                        "schema": {
+                            "$ref": "#/definitions/inviteSingleResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "AAF384FED8490DFE",
+                                "appId": "C39EFDBCAE349DFE",
+                                "sentDate": "2016-01-25T10:00:00,816226465Z",
+                                "from": "John Smith",
+                                "result": {
+                                    "sent": 46,
+                                    "accepted": 12
+                                },
+                                "recipients": [
+                                    {
+                                        "name": "Brad Smith",
+                                        "mri": "Brad.Smith.220.Sandbox@Contact.whispir.com",
+                                        "type": "ActiveContact",
+                                        "status": "Pending",
+                                        "lastUpdated": "2016-01-25T10:00:00,816226465Z",
+                                        "notes": ""
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "invites"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "applicationRequest": {
+            "type": "object",
+            "title": "The application object to be created",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "The name of the application"
+                },
+                "description": {
+                    "type": "string",
+                    "title": "A brief description of the application functionality"
+                },
+                "options": {
+                    "$ref": "#/definitions/options"
+                },
+                "apns": {
+                    "$ref": "#/definitions/apnsRequest"
+                },
+                "apnsSandbox": {
+                    "$ref": "#/definitions/apnsRequest"
+                },
+                "gcm": {
+                    "$ref": "#/definitions/gcm"
+                },
+                "defaultWorkspaceEnabled": {
+                    "type": "boolean",
+                    "title": "Flag whether the default workspace should be supported",
+                    "default": true
+                },
+                "registrationTypes": {
+                    "type": "array",
+                    "title": "The selected types of registration",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "INVITE",
+                            "SELF",
+                            "BACKGROUND"
+                        ]
+                    }
+                }
+            }
+        },
+        "apnsRequest": {
+            "type": "object",
+            "title": "The APNS (Apple) related properties of this application",
+            "properties": {
+                "certificate": {
+                    "type": "string",
+                    "title": "The certificate file for this application"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "title": "The private key file for this application"
+                }
+            }
+        },
+        "apnsResponse": {
+            "type": "object",
+            "title": "The APNS (Apple) related properties of this application",
+            "properties": {
+                "certificateDate": {
+                    "type": "string",
+                    "title": "The date this certificate was registered."
+                }
+            }
+        },
+        "gcm": {
+            "type": "object",
+            "title": "The GCM (Google Cloud Messaging) related properties of this application",
+            "properties": {
+                "gcmProjectId": {
+                    "type": "string",
+                    "title": "GCM Project Name from the Google console"
+                },
+                "gcmSenderNumber": {
+                    "type": "string",
+                    "title": "The GCM Project Number (also called Sender Key) for this application"
+                },
+                "gcmApiKey": {
+                    "type": "string",
+                    "title": "The GCM API Key for this application"
+                }
+            }
+        },
+        "options": {
+            "type": "object",
+            "title": "Optional elements to include in the Apps request",
+            "properties": {
+                "apikey": {
+                    "type": "string",
+                    "title": "A predefined apikey to use for the application. One will be generated if this is not supplied."
+                },
+                "clientSecret": {
+                    "type": "string",
+                    "title": "The secret key that can be used to make API callsa"
+                },
+                "deviceLimit": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The maximum number of devices that can be registered in Whispir for this application (default: 3)",
+                    "default": 3
+                },
+                "workspaces": {
+                    "type": "string",
+                    "title": "Comma separated list of workspace IDs that this application can be used in"
+                },
+                "contactDescriptionField": {
+                    "type": "string",
+                    "title": "The field that should be inspected on the contact profile for the 'Description' field in the application."
+                }
+            }
+        },
+        "applicationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The Whispir ID for the Application"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the application"
+                },
+                "description": {
+                    "type": "string",
+                    "title": "A brief description of the application functionality"
+                },
+                "options": {
+                    "$ref": "#/definitions/options"
+                },
+                "apns": {
+                    "$ref": "#/definitions/apnsResponse"
+                },
+                "apnsSandbox": {
+                    "$ref": "#/definitions/apnsResponse"
+                },
+                "gcm": {
+                    "$ref": "#/definitions/gcm"
+                },
+                "defaultWorkspaceEnabled": {
+                    "type": "boolean",
+                    "title": "Flag whether to enable the app in the default workspace",
+                    "default": true
+                },
+                "registrationTypes": {
+                    "type": "array",
+                    "title": "The selected types of registration",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "INVITE",
+                            "SELF",
+                            "BACKGROUND"
+                        ]
+                    }
+                },
+                "managedBySystem": {
+                    "type": "boolean",
+                    "title": "Flag that advises whether the app is user or system created",
+                    "default": false
+                },
+                "links": {
+                    "type": "array",
+                    "title": "The links for this resource",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "applicationsArray": {
+            "type": "object",
+            "title": "The list of applications currently in Whispir",
+            "properties": {
+                "applications": {
+                    "type": "array",
+                    "title": "The list of applications currently in Whispir",
+                    "items": {
+                        "$ref": "#/definitions/applicationResponse"
+                    }
+                }
+            }
+        },
+        "inviteRequest": {
+            "type": "object",
+            "title": "The invitation object",
+            "properties": {
+                "appId": {
+                    "type": "string",
+                    "title": "The ID of the application to send the invite to"
+                },
+                "to": {
+                    "type": "string",
+                    "title": "The recipient of the invitation"
+                },
+                "subject": {
+                    "type": "string",
+                    "title": "The subject of the message"
+                },
+                "email": {
+                    "$ref": "#/definitions/email"
+                }
+            }
+        },
+        "inviteArray": {
+            "type": "array",
+            "title": "The list of invitations that have been sent from this application",
+            "items": {
+                "$ref": "#/definitions/inviteGroupResponse"
+            }
+        },
+        "inviteGroupResponse": {
+            "type": "object",
+            "title": "The invite response object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the invitation"
+                },
+                "appId": {
+                    "type": "string",
+                    "title": "The ID of the application associated to the invitation"
+                },
+                "sentDate": {
+                    "type": "string",
+                    "title": "The date the invitation was sent"
+                },
+                "from": {
+                    "type": "string",
+                    "title": "The user that sent the message"
+                },
+                "result": {
+                    "$ref": "#/definitions/inviteSummaryStatus"
+                },
+                "links": {
+                    "type": "array",
+                    "title": "The links to various actions from this particular invitation",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "inviteSummaryStatus": {
+            "type": "object",
+            "title": "The status of an invitation",
+            "properties": {
+                "sent": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The number of invitations sent out with this particular message"
+                },
+                "accepted": {
+                    "type": "number",
+                    "format": "int32",
+                    "title": "The number of invitations accepted from this particular message"
+                }
+            }
+        },
+        "inviteSingleResponse": {
+            "type": "object",
+            "title": "The invite response object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the invitation"
+                },
+                "sentDate": {
+                    "type": "string",
+                    "title": "The date the invitation was sent"
+                },
+                "from": {
+                    "type": "string",
+                    "title": "The user that sent the message"
+                },
+                "result": {
+                    "$ref": "#/definitions/inviteSummaryStatus"
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/recipients"
+                    }
+                },
+                "links": {
+                    "type": "array",
+                    "title": "The links to various actions from this particular invitation",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "recipients": {
+            "type": "object",
+            "title": "The recipient that has received the invitation",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "the name of the contact that has received the invitation"
+                },
+                "mri": {
+                    "type": "string",
+                    "title": "The MRI of this particular recipient"
+                },
+                "type": {
+                    "type": "string",
+                    "title": "The type of invitation",
+                    "enum": [
+                        "ActiveContact",
+                        "ContactUpdate",
+                        "Application"
+                    ]
+                },
+                "status": {
+                    "type": "string",
+                    "title": "The status of the current recipient's invitation",
+                    "enum": [
+                        "Pending",
+                        "Accepted"
+                    ]
+                },
+                "lastUpdated": {
+                    "type": "string",
+                    "title": "The date that the invitation was sent or accepted"
+                },
+                "notes": {
+                    "type": "string",
+                    "title": "Any other notes on this invitation"
+                }
+            }
+        },
+        "email": {
+            "type": "object",
+            "title": "The email object",
+            "properties": {
+                "body": {
+                    "type": "string",
+                    "title": "The body content of the email"
+                },
+                "type": {
+                    "type": "string",
+                    "title": "The mime type of the email",
+                    "enum": [
+                        "text/plain",
+                        "text/html"
+                    ]
+                }
+            }
+        },
+        "defaultResponse": {
+            "type": "object",
+            "title": "The default response object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "title": "The status of this response",
+                    "enum": [
+                        "OK"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "title": "The string content of this response"
+                }
+            }
+        },
+        "link": {
+            "type": "object",
+            "title": "Reference Link to related functions or data",
+            "properties": {
+                "rel": {
+                    "type": "string",
+                    "title": "The description of the link"
+                },
+                "uri": {
+                    "type": "string",
+                    "title": "The url to access the information"
+                },
+                "method": {
+                    "type": "string",
+                    "title": "The HTTP Method that should be used for this URI"
+                }
+            }
+        }
+    }
+}

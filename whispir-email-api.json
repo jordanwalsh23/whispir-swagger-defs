@@ -1,0 +1,245 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Email APIs",
+        "description": "Create Email messages using Whispir's Powerful Conversation APIs.",
+        "version": "1.0.0",
+        "x-gist-id": "3866437615fc1f3ca11f",
+        "x-gist-filename": "email-message-swagger.yaml",
+        "x-gist-description": "Whispir Email API (Swagger v1)"
+    },
+    "host": "api.whispir.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API.\n"
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        }
+    },
+    "basePath": "/cors",
+    "produces": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "consumes": [
+        "application/vnd.whispir.message-v1+json"
+    ],
+    "paths": {
+        "/messages": {
+            "post": {
+                "summary": "Send an Email message from the default workspace",
+                "description": "Allows the user to send a simple Email message using plain text or HTML\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the Email message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/Email Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again."
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.",
+                    "url": "https://whispir.github.io/api/#email-messages"
+                }
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "summary": "Retrieve the workspace information to allow users to send messages from workspaces.\n",
+                "produces": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.workspace-v1+json"
+                ],
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The workspaces have been returned successfully\n"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspaceId}/messages": {
+            "post": {
+                "summary": "Send an Email message from the default workspace",
+                "description": "Allows the user to send a simple Email message using plain text or HTML\n",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The ID of the workspace that the message should be sent from."
+                    },
+                    {
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "description": "The content of the Email message to be sent.",
+                        "schema": {
+                            "$ref": "#/definitions/Email Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The message has been accepted for processing"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again."
+                    }
+                },
+                "externalDocs": {
+                    "description": "More information about Whispir Messaging is available here.",
+                    "url": "https://whispir.github.io/api/#email-messages"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Email Message": {
+            "type": "object",
+            "properties": {
+                "to": {
+                    "title": "Message Recipients",
+                    "description": "The recipients of the message. Can be mobile number, email or landline.",
+                    "type": "string"
+                },
+                "subject": {
+                    "title": "Message Subject",
+                    "description": "The subject of the message.",
+                    "type": "string"
+                },
+                "email": {
+                    "$ref": "#/definitions/Email"
+                }
+            }
+        },
+        "Email": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "title": "Email Mime-Type",
+                    "description": "The type of the content to be supplied in the email body.",
+                    "enum": [
+                        "text/plain",
+                        "text/html"
+                    ]
+                },
+                "body": {
+                    "title": "Email Content",
+                    "description": "The body of the email that should be sent (should conform to the type specified above).",
+                    "type": "string"
+                },
+                "footer": {
+                    "title": "Email Footer",
+                    "description": "The footer of the email can go here. This can be used for a signature or similar closing statement.",
+                    "type": "string"
+                },
+                "resources": {
+                    "title": "Email Attachments",
+                    "$ref": "#/definitions/Resource"
+                }
+            }
+        },
+        "Resource": {
+            "type": "object",
+            "title": "Attachments",
+            "properties": {
+                "attachment": {
+                    "type": "array",
+                    "title": "Message Attachments",
+                    "items": {
+                        "$ref": "#/definitions/Attachment"
+                    }
+                }
+            }
+        },
+        "Attachment": {
+            "type": "object",
+            "title": "Message Attachments",
+            "properties": {
+                "attachmentName": {
+                    "type": "string",
+                    "title": "Attachment Filename",
+                    "description": "The name of the attachment file."
+                },
+                "attachmentDesc": {
+                    "type": "string",
+                    "title": "Attachment Description",
+                    "description": "The description of the attachment file."
+                },
+                "derefUri": {
+                    "type": "string",
+                    "format": "byte",
+                    "title": "Attachment Base64 Encoding",
+                    "description": "The base64 encoded version of the attachment file.\n"
+                }
+            }
+        }
+    }
+}

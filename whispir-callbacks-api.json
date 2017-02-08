@@ -1,0 +1,952 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Callbacks APIs",
+        "description": "Whispir's Callback functionality allows customers applications to receive responses to messages directly to their applications via a JSON or XML POST request from Whispir.\n\nCustomers can provide a URL to Whispir, and specify an authorization header or query parameter to provide Whispir authorization to access the provided callback service.\n\nCustomers can use this API to create new callback services, and update or delete existing callback services.\n\nCallbacks can be invoked by including the supplied `callbackName` parameter in the request to the `messages` endpoint. \n\nFor example:\n\n```\n  POST https://api.whispir.com/messages?apikey=abc123\n  \n  {\n    \"to\" : \"61400000000\",\n    \"subject\" : \"Demonstration Message\",\n    \"body\" : \"This is the sample SMS Content\",\n    \"callbackId\" : \"My Callback Service\"\n  }\n```\n\nEvery attempt to POST information to the callback URL is stored as a `call` against the particular Callback record.\n\nCustomers can query this information by making a `GET` request to the `/callbacks/{id}/calls` endpoint.  This provides a list of both SUCCESS and FAILED calls to the specified callback.\n\nIn the event the customer would like to reprocess any FAILED callbacks in their system, they can consume the information using the `calls` endpoint, and once successfully SUCCESS, the particular call can be updated using the `PUT /callbacks/{id}/calls?id[]={id}` endpoint.\n\nMaking this update will update the status of the provided `call` IDs to `SUCCESS` so these will not be returned with the next query for FAILED calls.\n\n*Note:* This swagger definition references `applications/json` as the content type that should be used.  In a production capacity, the actual Accept and Content-Type headers should be:\n\n- `application/vnd.whispir.api-callback-v1+json` for Callbacks endpoints\n- `application/vnd.whispir.api-call-v1+json` for Calls endpoints\n\nMore information about Whispir's API Callbacks functionality can be found in the Whispir API Documentation available at https://whispir.github.io/api.\n",
+        "version": "1.0.1",
+        "x-gist-id": "797bfa590a3de304ee68",
+        "x-gist-filename": "callbacks-api-swagger.json",
+        "x-gist-description": "Whispir Callbacks API (Swagger v1)"
+    },
+    "host": "whispir-callbacks-mock.herokuapp.com",
+    "basePath": "/",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        }
+    },
+    "paths": {
+        "/callbacks": {
+            "post": {
+                "summary": "Create a new callback endpoint for Whispir to communicate with",
+                "x-swagger-router-controller": "callbacks",
+                "operationId": "callbacksPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "callback",
+                        "in": "body",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "schema": {
+                            "$ref": "#/definitions/callbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The callback has been created",
+                        "schema": {
+                            "$ref": "#/definitions/callbackResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "B3EDFE83DF389DFE",
+                                "name": "My Callback Server",
+                                "url": "https://www.myapplication.com/myapp",
+                                "auth": {
+                                    "type": "querystring",
+                                    "key": ""
+                                },
+                                "contentType": "json",
+                                "retriesEnabled": true,
+                                "removeHTML": "disabled",
+                                "email": "jsmith@example.com",
+                                "callbacks": {
+                                    "reply": "enabled",
+                                    "undeliverable": "enabled"
+                                },
+                                "links": [
+                                    {
+                                        "rel": "update",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE",
+                                        "method": "put"
+                                    },
+                                    {
+                                        "rel": "self",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE",
+                                        "method": "get"
+                                    },
+                                    {
+                                        "rel": "calls",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE/calls",
+                                        "method": "get"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "The required fields were not provided in the request payload.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "callbacks"
+                ]
+            },
+            "get": {
+                "summary": "Retrieve a listing of callbacks from the API",
+                "x-swagger-router-controller": "callbacks",
+                "operationId": "callbacksGet",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The callbacks are returned successfully",
+                        "schema": {
+                            "$ref": "#/definitions/callbackArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "status": "1 to 1 of 1",
+                                "callbacks": [
+                                    {
+                                        "id": "B3EDFE83DF389DFE",
+                                        "name": "My Callback Server",
+                                        "url": "https://www.myapplication.com/myapp",
+                                        "auth": {
+                                            "type": "querystring",
+                                            "key": ""
+                                        },
+                                        "contentType": "json",
+                                        "retriesEnabled": true,
+                                        "removeHTML": "disabled",
+                                        "email": "jsmith@example.com",
+                                        "callbacks": {
+                                            "reply": "enabled",
+                                            "undeliverable": "enabled"
+                                        },
+                                        "links": [
+                                            {
+                                                "rel": "update",
+                                                "uri": "/callbacks/B3EDFE83DF389DFE",
+                                                "method": "put"
+                                            },
+                                            {
+                                                "rel": "self",
+                                                "uri": "/callbacks/B3EDFE83DF389DFE",
+                                                "method": "get"
+                                            },
+                                            {
+                                                "rel": "calls",
+                                                "uri": "/callbacks/B3EDFE83DF389DFE/calls",
+                                                "method": "get"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "The required fields were not provided in the request payload.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "callbacks"
+                ]
+            }
+        },
+        "/callbacks/{callbackId}": {
+            "get": {
+                "summary": "Retrieve a listing of callbacks from the API",
+                "x-swagger-router-controller": "callbacks",
+                "operationId": "callbacksCallbackIdGet",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "callbackId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The callback is returned successfully",
+                        "schema": {
+                            "$ref": "#/definitions/callbackResponse"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "id": "B3EDFE83DF389DFE",
+                                "name": "My Callback Server",
+                                "url": "https://www.myapplication.com/myapp",
+                                "auth": {
+                                    "type": "querystring",
+                                    "key": ""
+                                },
+                                "contentType": "json",
+                                "retriesEnabled": true,
+                                "removeHTML": "disabled",
+                                "email": "jsmith@example.com",
+                                "callbacks": {
+                                    "reply": "enabled",
+                                    "undeliverable": "enabled"
+                                },
+                                "links": [
+                                    {
+                                        "rel": "update",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE",
+                                        "method": "put"
+                                    },
+                                    {
+                                        "rel": "self",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE",
+                                        "method": "get"
+                                    },
+                                    {
+                                        "rel": "calls",
+                                        "uri": "/callbacks/B3EDFE83DF389DFE/calls",
+                                        "method": "get"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "The required fields were not provided in the request payload.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "callbacks"
+                ]
+            },
+            "put": {
+                "summary": "Update an existing callback endpoint",
+                "x-swagger-router-controller": "callbacks",
+                "operationId": "callbacksCallbackIdPut",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.api-callback-v1+json",
+                    "application/vnd.whispir.api-callback-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "callbackId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "callback",
+                        "in": "body",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "schema": {
+                            "$ref": "#/definitions/callbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The callback has been updated"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "The required fields were not provided in the request payload.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "callbacks"
+                ]
+            },
+            "delete": {
+                "summary": "Delete an existing callback endpoint",
+                "x-swagger-router-controller": "callbacks",
+                "operationId": "callbacksCallbackIdDelete",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "callbackId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The callback has been deleted"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided.\n"
+                    },
+                    "422": {
+                        "description": "The required fields were not provided in the request payload.\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.\n"
+                    }
+                },
+                "tags": [
+                    "callbacks"
+                ]
+            }
+        },
+        "/callbacks/{callbackId}/calls": {
+            "get": {
+                "summary": "Get the list of notification calls made by the callback",
+                "description": "Provides the listing of notification calls made by callback to inform the client server",
+                "operationId": "callbacksCallbackIdCallsGet",
+                "x-swagger-router-controller": "calls",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.api-call-v1+json",
+                    "application/vnd.whispir.api-call-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "callbackId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The callback Id whose calls we need to retrieve.\n",
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "type": "string",
+                        "enum": [
+                            "success",
+                            "failed"
+                        ]
+                    },
+                    {
+                        "name": "attemptedDate",
+                        "in": "query",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    {
+                        "name": "statusCode",
+                        "in": "query",
+                        "type": "number",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "statusMessage",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "query",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of call objects",
+                        "schema": {
+                            "$ref": "#/definitions/callArray"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "status": "1 to 1 of 1",
+                                "calls": [
+                                    {
+                                        "id": "B3EDFE83DF389DFE",
+                                        "messageid": "ABC4857BCCF484575FCA",
+                                        "messagelocation": "https://api.whispir.com/messages/ABC4857BCCF484575FCA",
+                                        "status": "SUCCESS",
+                                        "from": {
+                                            "name": "Fred Waters",
+                                            "mri": "Fred_Waters.528798.Sandbox@Contact.whispir.com",
+                                            "mobile": "+1000000000",
+                                            "email": "",
+                                            "voice": ""
+                                        },
+                                        "responseMessage": {
+                                            "channel": "SMS",
+                                            "acknowledged": "09/01/13 13:22",
+                                            "content": "Yes, I accept. Will I need to bring steel cap boots?"
+                                        },
+                                        "callback": {
+                                            "id": "B384FD38DCBADE38",
+                                            "name": "My Callback Server",
+                                            "url": "https://www.myapplication.com/myapp",
+                                            "attemptedDate": "09/01/13 13:22",
+                                            "statusCode": 500,
+                                            "statusMessage": "Internal Server Error"
+                                        },
+                                        "link": [
+                                            {
+                                                "rel": "updateCall",
+                                                "uri": "/callbacks/B384FD38DCBADE38/calls/B3EDFE83DF389DFE",
+                                                "method": "PUT"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "link": [
+                                    {
+                                        "rel": "next",
+                                        "uri": "/callbacks/B384FD38DCBADE38/calls?limit=20&offset=20",
+                                        "method": "GET"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again.'/callbacks/{callbackId}/calls'\n"
+                    }
+                },
+                "tags": [
+                    "calls"
+                ]
+            },
+            "put": {
+                "summary": "Updates the call status for a given list of call ID's",
+                "description": "Updates the provided list of call(s) status to \"SUCCESS\"\n",
+                "x-swagger-router-controller": "calls",
+                "operationId": "callbacksCallbackIdCallsPut",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "consumes": [
+                    "application/vnd.whispir.api-call-v1+json",
+                    "application/vnd.whispir.api-call-v1+xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "callbackId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The callback object to be created.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "The ID of the call item whose status has to be set to\n\"SUCCESS\".  Sent as ?id[]=1. Multiple ID's can also be sent as\n?id[]=1&id[]=2&id[]=3\n",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi"
+                    },
+                    {
+                        "name": "status",
+                        "in": "body",
+                        "description": "The status to update the callback to",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/callStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The call status has been updated"
+                    },
+                    "401": {
+                        "description": "Username and Password is not correct\n"
+                    },
+                    "403": {
+                        "description": "No permission to access this resource, or API key incorrect/not provided\n"
+                    },
+                    "504": {
+                        "description": "Request took greater than 20s to complete out. Please try again."
+                    }
+                },
+                "tags": [
+                    "calls"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "callbackArray": {
+            "type": "object",
+            "xml": {
+                "name": "return",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "title": "the number of results returned"
+                },
+                "callbacks": {
+                    "xml": {
+                        "prefix": "ns2"
+                    },
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/callbackResponseSmall"
+                    }
+                }
+            }
+        },
+        "callbackResponseSmall": {
+            "type": "object",
+            "xml": {
+                "prefix": "ns2",
+                "name": "callback"
+            },
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The generated ID of the callback"
+                },
+                "name": {
+                    "type": "string",
+                    "title": "The name of the callback"
+                },
+                "url": {
+                    "type": "string",
+                    "title": "The URL of the callback"
+                },
+                "link": {
+                    "xml": {
+                        "prefix": "ns2"
+                    },
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "callbackResponse": {
+            "type": "object",
+            "xml": {
+                "name": "companyapicallback",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The generated ID of the callback"
+                },
+                "name": {
+                    "title": "The name of the callback object",
+                    "type": "string"
+                },
+                "url": {
+                    "title": "The url endpoint to access the callback",
+                    "type": "string"
+                },
+                "auth": {
+                    "$ref": "#/definitions/auth"
+                },
+                "contentType": {
+                    "type": "string",
+                    "title": "The content type that Whispir should send as the payload for the callback",
+                    "enum": [
+                        "json",
+                        "xml"
+                    ]
+                },
+                "retriesEnabled": {
+                    "type": "boolean",
+                    "title": "Option to enable or disable retries"
+                },
+                "removeHTML": {
+                    "type": "string",
+                    "title": "Option to keep or remove HTML from email responses",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ]
+                },
+                "email": {
+                    "type": "string",
+                    "title": "The email address to be notified when this callback fails."
+                },
+                "callbacks": {
+                    "$ref": "#/definitions/callbackType"
+                },
+                "link": {
+                    "type": "array",
+                    "xml": {
+                        "name": "link",
+                        "prefix": "ns2"
+                    },
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "callbackRequest": {
+            "type": "object",
+            "xml": {
+                "name": "companyapicallback",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "properties": {
+                "name": {
+                    "title": "The name of the callback object",
+                    "type": "string"
+                },
+                "url": {
+                    "title": "The url endpoint to access the callback",
+                    "type": "string"
+                },
+                "auth": {
+                    "$ref": "#/definitions/auth"
+                },
+                "contentType": {
+                    "type": "string",
+                    "title": "The content type that Whispir should send as the payload for the callback",
+                    "enum": [
+                        "json",
+                        "xml"
+                    ]
+                },
+                "removeHTML": {
+                    "type": "string",
+                    "title": "Option to keep or remove HTML from email responses",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ]
+                },
+                "email": {
+                    "type": "string",
+                    "title": "The email address to be notified when this callback fails."
+                },
+                "callbacks": {
+                    "$ref": "#/definitions/callbackType"
+                }
+            }
+        },
+        "auth": {
+            "type": "object",
+            "title": "The authentication properties for this callback",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "title": "The required type",
+                    "enum": [
+                        "querystring",
+                        "httpheader"
+                    ]
+                },
+                "key": {
+                    "type": "string",
+                    "title": "The key that should be passed by the Whispir platform to authenticate this callback"
+                }
+            }
+        },
+        "callbackType": {
+            "type": "object",
+            "title": "The types of callback that should be used for this callback",
+            "properties": {
+                "reply": {
+                    "type": "string",
+                    "title": "Whether replies should be delivered to this callback",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ]
+                },
+                "undeliverable": {
+                    "type": "string",
+                    "title": "Whether undeliverable messages should be delivered to this callback",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ]
+                }
+            }
+        },
+        "callArray": {
+            "type": "object",
+            "xml": {
+                "name": "return",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "title": "the number of results returned"
+                },
+                "calls": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/call"
+                    }
+                },
+                "link": {
+                    "type": "array",
+                    "xml": {
+                        "prefix": "ns2"
+                    },
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "call": {
+            "type": "object",
+            "xml": {
+                "name": "call",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "title": "The ID of the call object"
+                },
+                "messageid": {
+                    "type": "string",
+                    "title": "The ID of the message to which call belong to"
+                },
+                "messagelocation": {
+                    "type": "string",
+                    "title": "The location url of the message to which call belong to"
+                },
+                "status": {
+                    "type": "string",
+                    "title": "The Status of this particular callback attempt",
+                    "enum": [
+                        "SUCCESS",
+                        "FAILED"
+                    ]
+                },
+                "from": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "title": "name of the sender. Only applicable when the sender is a contact or user in Whispir"
+                        },
+                        "mri": {
+                            "type": "string",
+                            "title": "mri of the sender. Only applicable when the sender is a contact or user in Whispir"
+                        },
+                        "mobile": {
+                            "type": "string",
+                            "title": "The mobile number from which the SMS was replied"
+                        },
+                        "email": {
+                            "type": "string",
+                            "title": "The email from which the response was recevived"
+                        },
+                        "voice": {
+                            "type": "string",
+                            "title": "The mobile number from which the voice call was received"
+                        }
+                    }
+                },
+                "responseMessage": {
+                    "type": "object",
+                    "properties": {
+                        "channel": {
+                            "type": "string",
+                            "title": "The channel from which the response was received. Possible values are SMS, EMAIL, VOICE"
+                        },
+                        "acknowledged": {
+                            "type": "string",
+                            "title": "The date and time at which the response was received"
+                        },
+                        "content": {
+                            "type": "string",
+                            "title": "The content in the response"
+                        }
+                    }
+                },
+                "callback": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "url": {
+                            "type": "string"
+                        },
+                        "attemptedDate": {
+                            "type": "string"
+                        },
+                        "statusCode": {
+                            "type": "number",
+                            "format": "int32"
+                        },
+                        "statusMessage": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "link": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/link"
+                    }
+                }
+            }
+        },
+        "callStatus": {
+            "type": "object",
+            "xml": {
+                "name": "call",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns2"
+            },
+            "title": "The status of the call",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "default": "SUCCESS",
+                    "enum": [
+                        "SUCCESS",
+                        "FAILED"
+                    ]
+                }
+            }
+        },
+        "link": {
+            "type": "object",
+            "title": "The reference links for this object",
+            "properties": {
+                "uri": {
+                    "type": "string",
+                    "title": "The fully qualified URL to this referenced object"
+                },
+                "rel": {
+                    "type": "string",
+                    "title": "The descriptor about what this reference is"
+                },
+                "method": {
+                    "type": "string",
+                    "title": "The HTTP Method that should be used when accessing this object."
+                }
+            }
+        }
+    }
+}

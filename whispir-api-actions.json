@@ -1,0 +1,86 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Whispir Actions API",
+        "description": "Invoke Whispir Actions via the Whispir Platform API.",
+        "version": "1.0.0",
+        "x-gist-id": "76f2ef2671d11fc9dfcb0f65c44c88e6",
+        "x-gist-filename": "whispir-api-actions.json",
+        "x-gist-description": "Whispir Actions (Swagger v1)"
+    },
+    "host": "whispiractionsapi.herokuapp.com",
+    "schemes": [
+        "https"
+    ],
+    "securityDefinitions": {
+        "Username and Password": {
+            "type": "basic",
+            "description": "The Username and Password of the Whispir user that is accessing the API."
+        },
+        "API Key": {
+            "type": "apiKey",
+            "in": "query",
+            "name": "apikey",
+            "description": "The API Key provided after creating an application in Whispir.io.\n"
+        }
+    },
+    "basePath": "/",
+    "paths": {
+        "/actions": {
+            "post": {
+                "summary": "Create a new Whispir Action",
+                "x-swagger-router-controller": "Actions",
+                "operationId": "actionsPost",
+                "security": [
+                    {
+                        "Username and Password": []
+                    },
+                    {
+                        "API Key": []
+                    }
+                ],
+                "produces": [
+                    "application/vnd.whispir.action-v1+json",
+                    "application/vnd.whispir.action-v1+xml"
+                ],
+                "consumes": [
+                    "application/vnd.whispir.action-v1+json",
+                    "application/vnd.whispir.action-v1+xml"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The created action is returned",
+                        "schema": {
+                            "$ref": "#/definitions/actionResponse"
+                        }
+                    }
+                },
+                "tags": [
+                    "Action"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "actionResponse": {
+            "type": "object",
+            "xml": {
+                "name": "action",
+                "namespace": "http://schemas.api.whispir.com",
+                "prefix": "ns3"
+            },
+            "required": [
+                "name",
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
