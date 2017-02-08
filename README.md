@@ -1,0 +1,1 @@
+# whispir-swagger-defs
